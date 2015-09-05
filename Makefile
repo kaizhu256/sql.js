@@ -1,14 +1,14 @@
 # Need $(EMSCRIPTEN), for example run with        emmake make
 
-EMSCRIPTEN?=/usr/bin
+EMSCRIPTEN?=/mnt/data/src/emsdk/emscripten/latest
 
 EMCC=$(EMSCRIPTEN)/emcc
 
-CFLAGS=-DSQLITE_OMIT_LOAD_EXTENSION -DSQLITE_DISABLE_LFS -DLONGDOUBLE_TYPE=double -DSQLITE_INT64_TYPE="long long int" -DSQLITE_THREADSAFE=0
+CFLAGS=-DSQLITE_OMIT_LOAD_EXTENSION -DSQLITE_DISABLE_LFS -DLONGDOUBLE_TYPE=double -DSQLITE_INT64_TYPE="long long int" -DSQLITE_THREADSAFE=0 -DSQLITE_ENABLE_FTS3 -DSQLITE_ENABLE_FTS3_PARENTHESIS
 
 all: js/sql.js
 
-debug: EMFLAGS= -O1 -g -s INLINING_LIMIT=10 
+debug: EMFLAGS= -O1 -g -s INLINING_LIMIT=10
 debug: js/sql-debug.js
 
 optimized: EMFLAGS= --memory-init-file 0 --closure 1 -O3 -s INLINING_LIMIT=50
