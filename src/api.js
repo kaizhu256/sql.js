@@ -6,6 +6,7 @@
     NULL
     RegisterExtensionFunctions
     _free
+    addFunction
     allocate
     allocateUTF8OnStack
     getValue
@@ -26,6 +27,7 @@
     sqlite3_column_name
     sqlite3_column_text
     sqlite3_column_type
+    sqlite3_create_function_v2
     sqlite3_data_count
     sqlite3_errmsg
     sqlite3_exec
@@ -113,8 +115,8 @@ all its statements are closed too and become unusable.
     @example Bind values to anonymous parameters
         var stmt = db.prepare("UPDATE test SET a=? WHERE id BETWEEN ? AND ?");
         stmt.bind([5, 10, 20]);
-      - Create a statement that contains parameters like '?', '?NNN'
-      - Call Statement.bind with an array as parameter
+        - Create a statement that contains parameters like '?', '?NNN'
+        - Call Statement.bind with an array as parameter
 
     ## Value types
     Javascript type | SQLite type
@@ -159,10 +161,10 @@ all its statements are closed too and become unusable.
         this.pos = 1;
         ret = sqlite3_step(this.stmt);
         switch (ret) {
-        case SQLite.ROW:
-            return true;
         case SQLite.DONE:
             return false;
+        case SQLite.ROW:
+            return true;
         default:
             return this.db.handleError(ret);
         }
@@ -233,15 +235,15 @@ all its statements are closed too and become unusable.
         ref = sqlite3_data_count(this.stmt);
         while (field < ref) {
             switch (sqlite3_column_type(this.stmt, field)) {
+            case SQLite.BLOB:
+                results1.push(this.getBlob(field));
+                break;
             case SQLite.INTEGER:
             case SQLite.FLOAT:
                 results1.push(this.getNumber(field));
                 break;
             case SQLite.TEXT:
                 results1.push(this.getString(field));
-                break;
-            case SQLite.BLOB:
-                results1.push(this.getBlob(field));
                 break;
             default:
                 results1.push(null);
@@ -392,10 +394,8 @@ all its statements are closed too and become unusable.
             this.pos += 1;
         }
         switch (typeof val) {
-        case "string":
-            return this.bindString(val, pos);
-        case "number":
         case "boolean":
+        case "number":
             return this.bindNumber(val + 0, pos);
         case "object":
             if (val === null || val === undefined) {
@@ -409,6 +409,8 @@ all its statements are closed too and become unusable.
                     + ")."
                 );
             }
+        case "string":
+            return this.bindString(val, pos);
         }
     };
 
@@ -902,9 +904,6 @@ all its statements are closed too and become unusable.
             case "number":
                 sqlite3_result_double(cx, result);
                 break;
-            case "string":
-                sqlite3_result_text(cx, result, -1, -1);
-                break;
             case "object":
                 if (result === null || result === undefined) {
                     sqlite3_result_null(cx);
@@ -915,20 +914,36 @@ all its statements are closed too and become unusable.
                     sqlite3_result_blob(cx, blobptr, result.length, -1);
                     _free(blobptr);
                 } else {
-                    sqlite3_result_error(cx, "Wrong API use : tried to return a value of an unknown type (" + result + ").", -1);
+                    sqlite3_result_error(cx, (
+                        "Wrong API use : tried to return a value "
+                        + "of an unknown type (" + result + ")."
+                    ), -1);
                 }
+                break;
+            case "string":
+                sqlite3_result_text(cx, result, -1, -1);
                 break;
             default:
                 sqlite3_result_null(cx);
             }
         };
-        if (name in this.functions) {
+        if (this.functions.hasOwnProperty(name)) {
             removeFunction(this.functions[name]);
             delete this.functions[name];
         }
         func_ptr = addFunction(wrapped_func);
         this.functions[name] = func_ptr;
-        this.handleError(sqlite3_create_function_v2(this.db, name, func.length, SQLite.UTF8, 0, func_ptr, 0, 0, 0));
+        this.handleError(sqlite3_create_function_v2(
+            this.db,
+            name,
+            func.length,
+            SQLite.UTF8,
+            0,
+            func_ptr,
+            0,
+            0,
+            0
+        ));
         return this;
     };
 
