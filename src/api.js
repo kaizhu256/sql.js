@@ -1,7 +1,14 @@
 /* jslint utility2:true */
+/*global
+    sqlite3_column_bytes
+    sqlite3_column_double
+    sqlite3_column_text
+    sqlite3_step
+    stackAlloc
+*/
 // @copyright Ophir LOJKINE
 
-var Database;
+var Database; // jslint ignore:line
 var SQLite;
 var Statement;
 var apiTemp;
@@ -107,7 +114,8 @@ all its statements are closed too and become unusable.
             throw "Statement closed";
         }
         this.pos = 1;
-        switch (ret = sqlite3_step(this.stmt)) {
+        ret = sqlite3_step(this.stmt);
+        switch (ret) {
         case SQLite.ROW:
             return true;
         case SQLite.DONE:
@@ -444,9 +452,7 @@ all its statements are closed too and become unusable.
         this.stmt = NULL;
         return res;
     };
-
-    return Statement;
-})();
+}());
 
 Database = (function () {
     function Database(data) {
