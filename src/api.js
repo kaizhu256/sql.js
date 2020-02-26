@@ -16,28 +16,35 @@ SQLite = {};
 Prepared statements allow you to have a template sql string,
 that you can execute multiple times with different parameters.
 
-You can't instantiate this class directly, you have to use a [Database](Database.html)
-object in order to create a statement.
+You can't instantiate this class directly, you have to use a
+[Database](Database.html) object in order to create a statement.
 
-**Warning**: When you close a database (using db.close()), all its statements are
-closed too and become unusable.
+**Warning**: When you close a database (using db.close()),
+all its statements are closed too and become unusable.
 
 @see Database.html#prepare-dynamic
 @see https://en.wikipedia.org/wiki/Prepared_statement
  */
 
 Statement = (function() {
+    // Statements can't be created by the API user, only by Database::prepare
+    // @private
+    // @nodoc
     function Statement(stmt1, db) {
         this.stmt = stmt1;
         this.db = db;
+        // Index of the leftmost parameter is 1
         this.pos = 1;
+        // Pointers to allocated memory,
+        // that need to be freed when the statemend is destroyed
         this.allocatedmem = [];
     }
 
 
     /* Bind values to the parameters, after having reseted the statement
 
-    SQL statements can have parameters, named *'?', '?NNN', ':VVV', '@VVV', '$VVV'*,
+    SQL statements can have parameters,
+    named *'?', '?NNN', ':VVV', '@VVV', '$VVV'*,
     where NNN is a number and VVV a string.
     This function binds these parameters to the given values.
 
@@ -45,15 +52,17 @@ Statement = (function() {
 
     ## Binding values to named parameters
     @example Bind values to named parameters
-            var stmt = db.prepare("UPDATE test SET a=@newval WHERE id BETWEEN $mini AND $maxi");
-            stmt.bind({$mini:10, $maxi:20, '@newval':5});
+        var stmt = db.prepare(
+            "UPDATE test SET a=@newval WHERE id BETWEEN $mini AND $maxi"
+        );
+        stmt.bind({$mini:10, $maxi:20, '@newval':5});
     - Create a statement that contains parameters like '$VVV', ':VVV', '@VVV'
     - Call Statement.bind with an object as parameter
 
     ## Binding values to parameters
     @example Bind values to anonymous parameters
-            var stmt = db.prepare("UPDATE test SET a=? WHERE id BETWEEN ? AND ?");
-            stmt.bind([5, 10, 20]);
+        var stmt = db.prepare("UPDATE test SET a=? WHERE id BETWEEN ? AND ?");
+        stmt.bind([5, 10, 20]);
       - Create a statement that contains parameters like '?', '?NNN'
       - Call Statement.bind with an array as parameter
 
