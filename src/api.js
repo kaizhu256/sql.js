@@ -1,6 +1,13 @@
 /* jslint utility2:true */
 /*global
+    ALLOC_NORMAL
     HEAP8
+    allocate
+    intArrayFromString
+    sqlite3_bind_blob
+    sqlite3_bind_int
+    sqlite3_bind_double
+    sqlite3_bind_text
     sqlite3_column_blob
     sqlite3_column_bytes
     sqlite3_column_double
@@ -302,7 +309,8 @@ all its statements are closed too and become unusable.
             this.pos += 1;
         }
         bytes = intArrayFromString(string);
-        this.allocatedmem.push(strptr = allocate(bytes, "i8", ALLOC_NORMAL));
+        strptr = allocate(bytes, "i8", ALLOC_NORMAL);
+        this.allocatedmem.push(strptr);
         this.db.handleError(
             sqlite3_bind_text(this.stmt, pos, strptr, bytes.length - 1, 0)
         );
@@ -315,8 +323,11 @@ all its statements are closed too and become unusable.
             pos = this.pos;
             this.pos += 1;
         }
-        this.allocatedmem.push(blobptr = allocate(array, "i8", ALLOC_NORMAL));
-        this.db.handleError(sqlite3_bind_blob(this.stmt, pos, blobptr, array.length, 0));
+        blobptr = allocate(array, "i8", ALLOC_NORMAL);
+        this.allocatedmem.push(blobptr);
+        this.db.handleError(
+            sqlite3_bind_blob(this.stmt, pos, blobptr, array.length, 0)
+        );
         return true;
     };
 
@@ -326,7 +337,11 @@ all its statements are closed too and become unusable.
             pos = this.pos;
             this.pos += 1;
         }
-        bindfunc = num === (num | 0) ? sqlite3_bind_int : sqlite3_bind_double;
+        bindfunc = (
+            num === (num | 0)
+            ? sqlite3_bind_int
+            : sqlite3_bind_double
+        );
         this.db.handleError(bindfunc(this.stmt, pos, num));
         return true;
     };
@@ -357,7 +372,11 @@ all its statements are closed too and become unusable.
             } else if (val.length !== null) {
                 return this.bindBlob(val, pos);
             } else {
-                throw "Wrong API use : tried to bind a value of an unknown type (" + val + ").";
+                throw (
+                    "Wrong API use : tried to bind a value of an unknown type ("
+                    + val
+                    + ")."
+                );
             }
         }
     };
