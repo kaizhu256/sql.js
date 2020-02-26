@@ -14,8 +14,8 @@
     removeFunction
     setValue
     sqlite3_bind_blob
-    sqlite3_bind_int
     sqlite3_bind_double
+    sqlite3_bind_int
     sqlite3_bind_parameter_index
     sqlite3_bind_text
     sqlite3_changes
