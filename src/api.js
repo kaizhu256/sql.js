@@ -1,5 +1,7 @@
 /* jslint utility2:true */
 /*global
+    HEAPB
+    sqlite3_column_blob
     sqlite3_column_bytes
     sqlite3_column_double
     sqlite3_column_text
@@ -128,7 +130,7 @@ all its statements are closed too and become unusable.
     // Internal methods to retrieve data from the results of a statement
     // that has been executed
     Statement.prototype.getNumber = function (pos) {
-        if (pos == null) {
+        if (pos === null) {
             pos = this.pos;
             this.pos += 1;
         }
@@ -136,7 +138,7 @@ all its statements are closed too and become unusable.
     };
 
     Statement.prototype.getString = function (pos) {
-        if (pos == null) {
+        if (pos === null) {
             pos = this.pos;
             this.pos += 1;
         }
@@ -150,14 +152,15 @@ all its statements are closed too and become unusable.
         var ref;
         var result;
         var size;
-        if (pos == null) {
+        if (pos === null) {
             pos = this.pos;
             this.pos += 1;
         }
         size = sqlite3_column_bytes(this.stmt, pos);
         ptr = sqlite3_column_blob(this.stmt, pos);
         result = new Uint8Array(size);
-        i = k = 0;
+        i = 0;
+        k = 0;
         ref = size;
         while (
             0 <= ref
@@ -314,7 +317,7 @@ all its statements are closed too and become unusable.
     Statement.prototype.bindString = function (string, pos) {
         var bytes;
         var strptr;
-        if (pos == null) {
+        if (pos === null) {
             pos = this.pos;
             this.pos += 1;
         }
@@ -326,7 +329,7 @@ all its statements are closed too and become unusable.
 
     Statement.prototype.bindBlob = function (array, pos) {
         var blobptr;
-        if (pos == null) {
+        if (pos === null) {
             pos = this.pos;
             this.pos += 1;
         }
@@ -337,7 +340,7 @@ all its statements are closed too and become unusable.
 
     Statement.prototype.bindNumber = function (num, pos) {
         var bindfunc;
-        if (pos == null) {
+        if (pos === null) {
             pos = this.pos;
             this.pos += 1;
         }
@@ -347,7 +350,7 @@ all its statements are closed too and become unusable.
     };
 
     Statement.prototype.bindNull = function (pos) {
-        if (pos == null) {
+        if (pos === null) {
             pos = this.pos;
             this.pos += 1;
         }
@@ -356,7 +359,7 @@ all its statements are closed too and become unusable.
 
     // Call bindNumber or bindString appropriatly
     Statement.prototype.bindValue = function (val, pos) {
-        if (pos == null) {
+        if (pos === null) {
             pos = this.pos;
             this.pos += 1;
         }
