@@ -210,7 +210,7 @@ all its statements are closed too and become unusable.
         var field;
         var ref;
         var results1;
-        if (params !== null) {
+        if (params !== null && params !== undefined) {
             if (this.bind(params)) {
                 this.step();
             }
@@ -311,7 +311,7 @@ all its statements are closed too and become unusable.
       */
 
     Statement.prototype.run = function (values) {
-        if (values !== null) {
+        if (values !== null && values !== undefined) {
             this.bind(values);
         }
         this.step();
@@ -387,7 +387,7 @@ all its statements are closed too and become unusable.
         case "object":
             if (val === null || val === undefined) {
                 return this.bindNull(pos);
-            } else if (val.length !== null) {
+            } else if (val.length !== null && val.length !== undefined) {
                 return this.bindBlob(val, pos);
             } else {
                 throw (
@@ -489,7 +489,7 @@ all its statements are closed too and become unusable.
 (function () {
     Database = function (data) {
         this.filename = "dbfile_" + (0xffffffff * Math.random() >>> 0);
-        if (data !== null) {
+        if (data !== null && data !== undefined) {
             FS.createDataFile("/", this.filename, data, true, true);
         }
         this.handleError(sqlite3_open(this.filename, apiTemp));
@@ -705,7 +705,7 @@ all its statements are closed too and become unusable.
             throw "Nothing to prepare";
         }
         stmt = new Statement(pStmt, this);
-        if (params !== null) {
+        if (params !== null && params !== undefined) {
             stmt.bind(params);
         }
         this.statements[pStmt] = stmt;
@@ -910,7 +910,9 @@ all its statements are closed too and become unusable.
             case "object":
                 if (result === null || result === undefined) {
                 sqlite3_result_null(cx);
-                } else if (result.length !== null) {
+                } else if (
+                    result.length !== null && result.length !== undefined
+                ) {
                     blobptr = allocate(result, "i8", ALLOC_NORMAL);
                         sqlite3_result_blob(cx, blobptr, result.length, -1);
                     _free(blobptr);
