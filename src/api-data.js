@@ -1,4 +1,3 @@
-/* jslint utility2: true */
 // Global constants
 var NULL = 0; // Null pointer
 
