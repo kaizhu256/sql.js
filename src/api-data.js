@@ -1,5 +1,8 @@
+/*jslint browser*/
+/*global NULL SQLite*/
 // Global constants
-var NULL = 0; // Null pointer
+// Null pointer
+var NULL = 0;
 
 // Data types
 SQLite.OK = 0;
