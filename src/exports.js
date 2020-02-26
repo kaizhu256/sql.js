@@ -79,12 +79,15 @@ sqlite3_bind_text = Module.cwrap("sqlite3_bind_text", "number", [
 sqlite3_bind_blob = Module.cwrap("sqlite3_bind_blob", "number", [
     "number", "number", "number", "number", "number"
 ]);
+//int sqlite3_bind_double(sqlite3_stmt*, int, double);
 sqlite3_bind_double = Module.cwrap("sqlite3_bind_double", "number", [
     "number", "number", "number"
 ]);
+//int sqlite3_bind_double(sqlite3_stmt*, int, int);
 sqlite3_bind_int = Module.cwrap("sqlite3_bind_int", "number", [
     "number", "number", "number"
 ]);
+//int sqlite3_bind_double(sqlite3_stmt*, int, int);
 sqlite3_bind_parameter_index = Module.cwrap(
     "sqlite3_bind_parameter_index",
     "number",
@@ -92,12 +95,16 @@ sqlite3_bind_parameter_index = Module.cwrap(
         "number", "string"
     ]
 );
+
+//// Get values
+// int sqlite3_step(sqlite3_stmt*)
 sqlite3_step = Module.cwrap("sqlite3_step", "number", [
     "number"
 ]);
 sqlite3_errmsg = Module.cwrap("sqlite3_errmsg", "string", [
     "number"
 ]);
+// int sqlite3_data_count(sqlite3_stmt *pStmt);
 sqlite3_data_count = Module.cwrap("sqlite3_data_count", "number", [
     "number"
 ]);
@@ -116,18 +123,23 @@ sqlite3_column_bytes = Module.cwrap("sqlite3_column_bytes", "number", [
 sqlite3_column_type = Module.cwrap("sqlite3_column_type", "number", [
     "number", "number"
 ]);
+//const char *sqlite3_column_name(sqlite3_stmt*, int N);
 sqlite3_column_name = Module.cwrap("sqlite3_column_name", "string", [
     "number", "number"
 ]);
+// int sqlite3_reset(sqlite3_stmt *pStmt);
 sqlite3_reset = Module.cwrap("sqlite3_reset", "number", [
     "number"
 ]);
 sqlite3_clear_bindings = Module.cwrap("sqlite3_clear_bindings", "number", [
     "number"
 ]);
+// int sqlite3_finalize(sqlite3_stmt *pStmt);
 sqlite3_finalize = Module.cwrap("sqlite3_finalize", "number", [
     "number"
 ]);
+
+//// Create custom functions
 sqlite3_create_function_v2 = Module.cwrap(
     "sqlite3_create_function_v2",
     "number",
@@ -189,6 +201,8 @@ RegisterExtensionFunctions = Module.cwrap(
         "number"
     ]
 );
+
+// Export the API
 this.SQL = {
     "Database": Database
 };
