@@ -136,8 +136,21 @@ Statement = (function() {
         size = sqlite3_column_bytes(this.stmt, pos);
         ptr = sqlite3_column_blob(this.stmt, pos);
         result = new Uint8Array(size);
-        for (i = k = 0, ref = size; 0 <= ref ? k < ref : k > ref; i = 0 <= ref ? ++k : --k) {
+        i = k = 0;
+        ref = size;
+        while (
+            0 <= ref
+            ?
+            k < ref
+            : k > ref
+        ) {
             result[i] = HEAP8[ptr + i];
+            if (0 <= ref) {
+                k += 1;
+            } else {
+                k -= 1;
+            }
+            i = k;
         }
         return result;
     };
@@ -155,7 +168,10 @@ Statement = (function() {
       */
 
     Statement.prototype['get'] = function(params) {
-        var field, k, ref, results1;
+        var field;
+        var k;
+        var ref;
+        var results1;
         if (params != null) {
             this['bind'](params) && this['step']();
         }
@@ -190,7 +206,10 @@ Statement = (function() {
       */
 
     Statement.prototype['getColumnNames'] = function() {
-        var i, k, ref, results1;
+        var i;
+        var k;
+        var ref;
+        var results1;
         results1 = [];
         for (i = k = 0, ref = sqlite3_data_count(this.stmt); 0 <= ref ? k < ref : k > ref; i = 0 <= ref ? ++k : --k) {
             results1.push(sqlite3_column_name(this.stmt, i));
