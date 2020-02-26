@@ -122,14 +122,16 @@ all its statements are closed too and become unusable.
     // that has been executed
     Statement.prototype.getNumber = function(pos) {
         if (pos == null) {
-            pos = this.pos++;
+            pos = this.pos;
+            this.pos += 1;
         }
         return sqlite3_column_double(this.stmt, pos);
     };
 
     Statement.prototype.getString = function(pos) {
         if (pos == null) {
-            pos = this.pos++;
+            pos = this.pos;
+            this.pos += 1;
         }
         return sqlite3_column_text(this.stmt, pos);
     };
@@ -142,7 +144,8 @@ all its statements are closed too and become unusable.
         var result;
         var size;
         if (pos == null) {
-            pos = this.pos++;
+            pos = this.pos;
+            this.pos += 1;
         }
         size = sqlite3_column_bytes(this.stmt, pos);
         ptr = sqlite3_column_blob(this.stmt, pos);
@@ -311,7 +314,8 @@ all its statements are closed too and become unusable.
         var bytes;
         var strptr;
         if (pos == null) {
-            pos = this.pos++;
+            pos = this.pos;
+            this.pos += 1;
         }
         bytes = intArrayFromString(string);
         this.allocatedmem.push(strptr = allocate(bytes, 'i8', ALLOC_NORMAL));
@@ -322,7 +326,8 @@ all its statements are closed too and become unusable.
     Statement.prototype.bindBlob = function(array, pos) {
         var blobptr;
         if (pos == null) {
-            pos = this.pos++;
+            pos = this.pos;
+            this.pos += 1;
         }
         this.allocatedmem.push(blobptr = allocate(array, 'i8', ALLOC_NORMAL));
         this.db.handleError(sqlite3_bind_blob(this.stmt, pos, blobptr, array.length, 0));
@@ -332,7 +337,8 @@ all its statements are closed too and become unusable.
     Statement.prototype.bindNumber = function(num, pos) {
         var bindfunc;
         if (pos == null) {
-            pos = this.pos++;
+            pos = this.pos;
+            this.pos += 1;
         }
         bindfunc = num === (num | 0) ? sqlite3_bind_int : sqlite3_bind_double;
         this.db.handleError(bindfunc(this.stmt, pos, num));
@@ -341,7 +347,8 @@ all its statements are closed too and become unusable.
 
     Statement.prototype.bindNull = function(pos) {
         if (pos == null) {
-            pos = this.pos++;
+            pos = this.pos;
+            this.pos += 1;
         }
         return sqlite3_bind_blob(this.stmt, pos, 0, 0, 0) === SQLite.OK;
     };
@@ -349,7 +356,8 @@ all its statements are closed too and become unusable.
     // Call bindNumber or bindString appropriatly
     Statement.prototype.bindValue = function(val, pos) {
         if (pos == null) {
-            pos = this.pos++;
+            pos = this.pos;
+            this.pos += 1;
         }
         switch (typeof val) {
             case "string":
