@@ -79,15 +79,15 @@ sqlite3_bind_text = Module.cwrap("sqlite3_bind_text", "number", [
 sqlite3_bind_blob = Module.cwrap("sqlite3_bind_blob", "number", [
     "number", "number", "number", "number", "number"
 ]);
-//int sqlite3_bind_double(sqlite3_stmt*, int, double);
+// int sqlite3_bind_double(sqlite3_stmt*, int, double);
 sqlite3_bind_double = Module.cwrap("sqlite3_bind_double", "number", [
     "number", "number", "number"
 ]);
-//int sqlite3_bind_double(sqlite3_stmt*, int, int);
+// int sqlite3_bind_double(sqlite3_stmt*, int, int);
 sqlite3_bind_int = Module.cwrap("sqlite3_bind_int", "number", [
     "number", "number", "number"
 ]);
-//int sqlite3_bind_double(sqlite3_stmt*, int, int);
+// int sqlite3_bind_double(sqlite3_stmt*, int, int);
 sqlite3_bind_parameter_index = Module.cwrap(
     "sqlite3_bind_parameter_index",
     "number",
@@ -123,7 +123,7 @@ sqlite3_column_bytes = Module.cwrap("sqlite3_column_bytes", "number", [
 sqlite3_column_type = Module.cwrap("sqlite3_column_type", "number", [
     "number", "number"
 ]);
-//const char *sqlite3_column_name(sqlite3_stmt*, int N);
+// const char *sqlite3_column_name(sqlite3_stmt*, int N);
 sqlite3_column_name = Module.cwrap("sqlite3_column_name", "string", [
     "number", "number"
 ]);
