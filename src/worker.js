@@ -87,6 +87,7 @@ if (typeof importScripts === "function") {
                     return postMessage(result, [
                         result
                     ]);
+                // Some browsers fail when trying to use transferable objects
                 } catch (ignore) {
                     return postMessage(result);
                 }
