@@ -156,11 +156,11 @@ Statement = (function() {
             : k > ref
         ) {
             result[i] = HEAP8[ptr + i];
-            if (0 <= ref) {
-                k += 1;
-            } else {
-                k -= 1;
-            }
+            k += (
+                0 <= ref
+                ? 1
+                : -1
+            );
             i = k;
         }
         return result;
@@ -187,7 +187,14 @@ Statement = (function() {
             this.bind(params) && this.step();
         }
         results1 = [];
-        for (field = k = 0, ref = sqlite3_data_count(this.stmt); 0 <= ref ? k < ref : k > ref; field = 0 <= ref ? ++k : --k) {
+        field = 0;
+        k = 0;
+        ref = sqlite3_data_count(this.stmt);
+        while (
+            0 <= ref
+            ? k < ref
+            : k > ref
+        ) {
             switch (sqlite3_column_type(this.stmt, field)) {
                 case SQLite.INTEGER:
                 case SQLite.FLOAT:
@@ -202,6 +209,12 @@ Statement = (function() {
                 default:
                     results1.push(null);
             }
+            k += (
+                0 <= ref
+                ? 1
+                : -1
+            );
+            field = k;
         }
         return results1;
     };
@@ -222,8 +235,22 @@ Statement = (function() {
         var ref;
         var results1;
         results1 = [];
-        for (i = k = 0, ref = sqlite3_data_count(this.stmt); 0 <= ref ? k < ref : k > ref; i = 0 <= ref ? ++k : --k) {
+        i = 0;
+        k = 0;
+        ref = sqlite3_data_count(this.stmt);
+        while (
+            0 <= ref
+            ?
+            k < ref
+            : k > ref
+        ) {
             results1.push(sqlite3_column_name(this.stmt, i));
+            k += (
+                0 <= ref
+                ? 1
+                : -1
+            );
+            i = k;
         }
         return results1;
     };
@@ -253,9 +280,14 @@ Statement = (function() {
         values = this.get(params);
         names = this.getColumnNames();
         rowObject = {};
-        for (i = k = 0, len = names.length; k < len; i = ++k) {
+        i = 0;
+        k = 0;
+        len = names.length;
+        while (k < len) {
             name = names[i];
             rowObject[name] = values[i];
+            k += 1;
+            i = k;
         }
         return rowObject;
     };
