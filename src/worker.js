@@ -31,7 +31,7 @@ if (typeof importScripts === "function") {
             var data;
             var done;
             var result;
-            data = event.data;
+            data = event.data || null;
             switch (
                 data !== null
                 ? data.action
