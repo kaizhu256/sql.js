@@ -1,44 +1,44 @@
-/* jslint utility2:true */
+/*jslint browser*/
 /*global Database Module*/
-var RegisterExtensionFunctions; // jslint ignore:line
-var sqlite3_bind_blob; // jslint ignore:line
-var sqlite3_bind_double; // jslint ignore:line
-var sqlite3_bind_int; // jslint ignore:line
-var sqlite3_bind_parameter_index; // jslint ignore:line
-var sqlite3_bind_text; // jslint ignore:line
-var sqlite3_changes; // jslint ignore:line
-var sqlite3_clear_bindings; // jslint ignore:line
-var sqlite3_close_v2; // jslint ignore:line
-var sqlite3_column_blob; // jslint ignore:line
-var sqlite3_column_bytes; // jslint ignore:line
-var sqlite3_column_double; // jslint ignore:line
-var sqlite3_column_name; // jslint ignore:line
-var sqlite3_column_text; // jslint ignore:line
-var sqlite3_column_type; // jslint ignore:line
-var sqlite3_create_function_v2; // jslint ignore:line
-var sqlite3_data_count; // jslint ignore:line
-var sqlite3_errmsg; // jslint ignore:line
-var sqlite3_exec; // jslint ignore:line
-var sqlite3_finalize; // jslint ignore:line
-var sqlite3_free; // jslint ignore:line
-var sqlite3_open; // jslint ignore:line
-var sqlite3_prepare_v2; // jslint ignore:line
-var sqlite3_prepare_v2_sqlptr; // jslint ignore:line
-var sqlite3_reset; // jslint ignore:line
-var sqlite3_result_blob; // jslint ignore:line
-var sqlite3_result_double; // jslint ignore:line
-var sqlite3_result_error; // jslint ignore:line
-var sqlite3_result_int64; // jslint ignore:line
-var sqlite3_result_int; // jslint ignore:line
-var sqlite3_result_null; // jslint ignore:line
-var sqlite3_result_text; // jslint ignore:line
-var sqlite3_step; // jslint ignore:line
-var sqlite3_value_blob; // jslint ignore:line
-var sqlite3_value_bytes; // jslint ignore:line
-var sqlite3_value_double; // jslint ignore:line
-var sqlite3_value_int; // jslint ignore:line
-var sqlite3_value_text; // jslint ignore:line
-var sqlite3_value_type; // jslint ignore:line
+var RegisterExtensionFunctions;
+var sqlite3_bind_blob;
+var sqlite3_bind_double;
+var sqlite3_bind_int;
+var sqlite3_bind_parameter_index;
+var sqlite3_bind_text;
+var sqlite3_changes;
+var sqlite3_clear_bindings;
+var sqlite3_close_v2;
+var sqlite3_column_blob;
+var sqlite3_column_bytes;
+var sqlite3_column_double;
+var sqlite3_column_name;
+var sqlite3_column_text;
+var sqlite3_column_type;
+var sqlite3_create_function_v2;
+var sqlite3_data_count;
+var sqlite3_errmsg;
+var sqlite3_exec;
+var sqlite3_finalize;
+var sqlite3_free;
+var sqlite3_open;
+var sqlite3_prepare_v2;
+var sqlite3_prepare_v2_sqlptr;
+var sqlite3_reset;
+var sqlite3_result_blob;
+var sqlite3_result_double;
+var sqlite3_result_error;
+var sqlite3_result_int64;
+var sqlite3_result_int;
+var sqlite3_result_null;
+var sqlite3_result_text;
+var sqlite3_step;
+var sqlite3_value_blob;
+var sqlite3_value_bytes;
+var sqlite3_value_double;
+var sqlite3_value_int;
+var sqlite3_value_text;
+var sqlite3_value_type;
 
 sqlite3_open = Module.cwrap("sqlite3_open", "number", [
     "string", "number"
@@ -203,9 +203,7 @@ RegisterExtensionFunctions = Module.cwrap(
 );
 
 // Export the API
-this.SQL = {
+this.SQL = { // jslint ignore:line
     "Database": Database
 };
-Object.keys(this.SQL).forEach(function (i) {
-    Module[i] = this.SQL[i];
-});
+Module.Database = Database;
