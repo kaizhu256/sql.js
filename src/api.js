@@ -1,13 +1,22 @@
 /* jslint utility2:true */
 /*global
     ALLOC_NORMAL
+    FS
     HEAP8
+    NULL
+    RegisterExtensionFunctions
+    _free
     allocate
+    allocateUTF8OnStack
+    getValue
     intArrayFromString
+    setValue
     sqlite3_bind_blob
     sqlite3_bind_int
     sqlite3_bind_double
+    sqlite3_bind_parameter_index
     sqlite3_bind_text
+    sqlite3_clear_bindings
     sqlite3_column_blob
     sqlite3_column_bytes
     sqlite3_column_double
@@ -15,8 +24,14 @@
     sqlite3_column_text
     sqlite3_column_type
     sqlite3_data_count
+    sqlite3_exec
+    sqlite3_finalize
+    sqlite3_open
+    sqlite3_prepare_v2_sqlptr
+    sqlite3_reset
     sqlite3_step
     stackAlloc
+    stackSave
 */
 // @copyright Ophir LOJKINE
 
@@ -381,23 +396,23 @@ all its statements are closed too and become unusable.
         }
     };
 
-    /* Bind names and values of an object to the named parameters of the statement
+    /* Bind names and values of an object to the named parameters
+    of the statement
     @param [Object]
     @private
     @nodoc
-      */
+    */
 
     Statement.prototype.bindFromObject = function (valuesObj) {
-        var name;
-        var num;
-        var value;
-        for (name in valuesObj) {
+        Object.keys(valuesObj).forEach(function (name) {
+            var num;
+            var value;
             value = valuesObj[name];
             num = sqlite3_bind_parameter_index(this.stmt, name);
             if (num !== 0) {
                 this.bindValue(value, num);
             }
-        }
+        });
         return true;
     };
 
@@ -425,12 +440,16 @@ all its statements are closed too and become unusable.
     };
 
     /* Reset a statement, so that it's parameters can be bound to new values
-    It also clears all previous bindings, freeing the memory used by bound parameters.
-      */
+    It also clears all previous bindings, freeing the memory
+    used by bound parameters.
+    */
 
     Statement.prototype.reset = function () {
         this.freemem();
-        return sqlite3_clear_bindings(this.stmt) === SQLite.OK && sqlite3_reset(this.stmt) === SQLite.OK;
+        return (
+            sqlite3_clear_bindings(this.stmt) === SQLite.OK
+            && sqlite3_reset(this.stmt) === SQLite.OK
+        );
     };
 
     /* Free the memory allocated during parameter binding
@@ -438,7 +457,11 @@ all its statements are closed too and become unusable.
 
     Statement.prototype.freemem = function () {
         var mem;
-        while (mem = this.allocatedmem.pop()) {
+        while (true) {
+            mem = this.allocatedmem.pop();
+            if (!mem) {
+                break;
+            }
             _free(mem);
         }
         return null;
@@ -458,32 +481,39 @@ all its statements are closed too and become unusable.
     };
 }());
 
-Database = (function () {
-    function Database(data) {
+
+
+(function () {
+    Database = function (data) {
         this.filename = "dbfile_" + (0xffffffff * Math.random() >>> 0);
         if (data !== null) {
             FS.createDataFile("/", this.filename, data, true, true);
         }
         this.handleError(sqlite3_open(this.filename, apiTemp));
         this.db = getValue(apiTemp, "i32");
-        RegisterExtensionFunctions(this.db);
+        RegisterExtensionFunctions(this.db); // jslint ignore:line
         this.statements = {};
         this.functions = {};
-    }
+    };
 
     /* Execute an SQL query, ignoring the rows it returns.
 
     @param sql [String] a string containing some SQL text to execute
-    @param params [Array] (*optional*) When the SQL statement contains placeholders, you can pass them in here. They will be bound to the statement before it is executed.
+    @param params [Array] (*optional*) When the SQL statement contains
+    placeholders, you can pass them in here. They will be bound to the
+    statement before it is executed.
 
-    If you use the params argument, you **cannot** provide an sql string that contains several
+    If you use the params argument, you **cannot** provide an sql string
+    that contains several
     queries (separated by ';')
 
     @example Insert values in a table
-            db.run("INSERT INTO test VALUES (:age, :name)", {':age':18, ':name':'John'});
+        db.run(
+            "INSERT INTO test VALUES (:age, :name)", {':age':18, ':name':'John'}
+        );
 
     @return [Database] The database object (useful for method chaining)
-      */
+    */
 
     Database.prototype.run = function (sql, params) {
         var stmt;
@@ -494,6 +524,8 @@ Database = (function () {
             stmt = this.prepare(sql, params);
             try {
                 stmt.step();
+            } catch (errCaught) {
+                throw errCaught; // jslint ignore:line
             } finally {
                 stmt.free();
             }
@@ -509,11 +541,13 @@ Database = (function () {
     and Statement.free.
 
     The result is an array of result elements. There are as many result elements
-    as the number of statements in your sql string (statements are separated by a semicolon)
+    as the number of statements in your sql string
+    (statements are separated by a semicolon)
 
     Each result element is an object with two properties:
-            'columns' : the name of the columns of the result (as returned by Statement.getColumnNames())
-            'values' : an array of rows. Each row is itself an array of values
+        'columns' : the name of the columns of the result
+        (as returned by Statement.getColumnNames())
+        'values' : an array of rows. Each row is itself an array of values
 
     ## Example use
     We have the following table, named *test* :
@@ -532,10 +566,13 @@ Database = (function () {
 
     `res` is now :
     ```javascript
-            [
-                    {columns: ['id'], values:[[1],[2],[3]]},
-                    {columns: ['age','name'], values:[[1,'Ling'],[18,'Paul'],[3,'Markus']]}
-            ]
+        [
+            {columns: ['id'], values:[[1],[2],[3]]},
+            {
+                columns: ['age','name'],
+                values:[[1,'Ling'],[18,'Paul'],[3,'Markus']]
+            }
+        ]
     ```
 
     @param sql [String] a string containing some SQL text to execute
@@ -857,7 +894,7 @@ Database = (function () {
                 } else if (result.length !== null) {
                     blobptr = allocate(result, "i8", ALLOC_NORMAL);
                         sqlite3_result_blob(cx, blobptr, result.length, -1);
-                        _free(blobptr);
+                    _free(blobptr);
                 } else {
                 sqlite3_result_error(cx, "Wrong API use : tried to return a value of an unknown type (" + result + ").", -1);
                 }
@@ -877,4 +914,4 @@ Database = (function () {
     };
 
     return Database;
-})();
+}());
