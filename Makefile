@@ -143,9 +143,7 @@ dist/worker.sql-wasm-debug.js: dist/sql-wasm-debug.js src/worker.js
 
 out/api.js: src/output-pre.js src/api.js src/exports.js src/api-data.js src/output-post.js
 	mkdir -p out
-	cat src/api.js src/exports.js src/api-data.js > $@
-	cat src/output-pre.js $@ src/output-post.js > out/api-wrapped.js
-	mv out/api-wrapped.js $@
+	cat src/output-pre.js src/api.js src/exports.js src/api-data.js src/output-post.js > $@
 
 out/sqlite3.bc: sqlite-src/$(SQLITE_AMALGAMATION)
 	mkdir -p out
