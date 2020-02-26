@@ -1,4 +1,4 @@
-/* jslint utility2:true */
+/*jslint browser*/
 /*global
     SQL
     importScripts
