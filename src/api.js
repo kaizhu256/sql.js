@@ -27,6 +27,7 @@
     sqlite3_exec
     sqlite3_finalize
     sqlite3_open
+    sqlite3_prepare_v2
     sqlite3_prepare_v2_sqlptr
     sqlite3_reset
     sqlite3_step
@@ -579,6 +580,7 @@ all its statements are closed too and become unusable.
     @return [Array<QueryResults>] An array of results.
       */
 
+/* jslint ignore:start */
     Database.prototype.exec = function (sql) {
         var curresult;
         var nextSqlPtr;
@@ -598,27 +600,34 @@ all its statements are closed too and become unusable.
             while (getValue(nextSqlPtr, "i8") !== NULL) {
                 setValue(apiTemp, 0, "i32");
                 setValue(pzTail, 0, "i32");
-                this.handleError(sqlite3_prepare_v2_sqlptr(this.db, nextSqlPtr, -1, apiTemp, pzTail));
+                this.handleError(
+                    sqlite3_prepare_v2_sqlptr(
+                        this.db,
+                        nextSqlPtr,
+                        -1,
+                        apiTemp,
+                        pzTail
+                    )
+                );
                 pStmt = getValue(apiTemp, "i32");
                 nextSqlPtr = getValue(pzTail, "i32");
-                if (pStmt === NULL) {
-                    continue;
-                }
-                curresult = null;
-                stmt = new Statement(pStmt, this);
-                try {
-                    while (stmt.step()) {
-                        if (curresult === null) {
-                            curresult = {
-                                "columns": stmt.getColumnNames(),
-                                "values": []
-                            };
-                            results.push(curresult);
+                if (pStmt !== NULL) {
+                    curresult = null;
+                    stmt = new Statement(pStmt, this);
+                    try {
+                        while (stmt.step()) {
+                            if (curresult === null) {
+                                curresult = {
+                                    "columns": stmt.getColumnNames(),
+                                    "values": []
+                                };
+                                results.push(curresult);
+                            }
+                            curresult.values.push(stmt.get());
                         }
-                        curresult.values.push(stmt.get());
+                    } finally {
+                        stmt.free();
                     }
-                } finally {
-                    stmt.free();
                 }
             }
             return results;
@@ -626,40 +635,48 @@ all its statements are closed too and become unusable.
             stackRestore(stack);
         }
     };
+/* jslint ignore:end */
 
     /* Execute an sql statement, and call a callback for each row of result.
 
-    **Currently** this method is synchronous, it will not return until the callback has
+    **Currently** this method is synchronous, it will not return until
+    the callback has
     been called on every row of the result. But this might change.
 
-    @param sql [String] A string of SQL text. Can contain placeholders that will be
+    @param sql [String] A string of SQL text. Can contain placeholders
+    that will be
     bound to the parameters given as the second argument
-    @param params [Array<String,Number,null,Uint8Array>] (*optional*) Parameters to bind
-    to the query
-    @param callback [Function(Object)] A function that will be called on each row of result
-    @param done [Function] A function that will be called when all rows have been retrieved
+    @param params [Array<String,Number,null,Uint8Array>] (*optional*) Parameters
+    to bind to the query
+    @param callback [Function(Object)] A function that will be called
+    on each row of result
+    @param done [Function] A function that will be called when all rows
+    have been retrieved
 
     @return [Database] The database object. Useful for method chaining
 
     @example Read values from a table
-            db.each("SELECT name,age FROM users WHERE age >= $majority",
-                                            {$majority:18},
-                                            function(row){console.log(row.name + " is a grown-up.")}
-                                    );
-      */
+        db.each(
+            "SELECT name,age FROM users WHERE age >= $majority",
+            {$majority:18},
+            function(row){console.log(row.name + " is a grown-up.")}
+        );
+    */
 
     Database.prototype.each = function (sql, params, callback, done) {
         var stmt;
         if (typeof params === "function") {
             done = callback;
             callback = params;
-            params = void 0;
+            params = undefined;
         }
         stmt = this.prepare(sql, params);
         try {
             while (stmt.step()) {
                 callback(stmt.getAsObject());
             }
+        } catch (errCaught) {
+            throw errCaught; // jslint ignore:line
         } finally {
             stmt.free();
         }
@@ -669,7 +686,8 @@ all its statements are closed too and become unusable.
     };
 
     /* Prepare an SQL statement
-    @param sql [String] a string of SQL, that can contain placeholders ('?', ':VVV', ':AAA', '@AAA')
+    @param sql [String] a string of SQL, that can contain placeholders
+    ('?', ':VVV', ':AAA', '@AAA')
     @param params [Array] (*optional*) values to bind to placeholders
     @return [Statement] the resulting statement
     @throw [String] SQLite error
