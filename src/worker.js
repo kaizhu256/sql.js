@@ -1,5 +1,10 @@
 /* jslint utility2:true */
-/*global SQL importScripts intSqlJs self*/
+/*global
+    SQL
+    importScripts
+    initSqlJs
+    self
+*/
 // Since this is only included in web worker builds,
 // I'm not sure if we need to detect this.
 // In fact, it seems like we might want to throw an error
@@ -14,7 +19,8 @@ if (typeof importScripts === "function") {
         if (db !== null) {
             db.close();
         }
-        return db = new SQL.Database(data);
+        db = new SQL.Database(data);
+        return db;
     };
     sqlModuleReady = initSqlJs();
     self.onmessage = function (event) {
@@ -23,13 +29,12 @@ if (typeof importScripts === "function") {
             var callback;
             var data;
             var done;
-            var err;
             var result;
             data = event.data;
-            switch (data !== null ? data.action : void 0) {
+            switch (data !== null ? data.action : undefined) {
             case "open":
                 buff = data.buffer;
-                createDb((buff ? new Uint8Array(buff) : void 0));
+                createDb((buff ? new Uint8Array(buff) : undefined));
                 return postMessage({
                     "id": data.id,
                     "ready": true
@@ -73,15 +78,14 @@ if (typeof importScripts === "function") {
                     return postMessage(result, [
                         result
                     ]);
-                } catch (error) {
-                    err = error;
+                } catch (ignore) {
                     return postMessage(result);
                 }
-                    break;
+                break;
             case "close":
-                return db !== null ? db.close() : void 0;
+                return db !== null ? db.close() : undefined;
             default:
-                throw new Error("Invalid action : " + (data !== null ? data.action : void 0));
+                throw new Error("Invalid action : " + (data !== null ? data.action : undefined));
             }
         })["catch"](function (err) {
             return postMessage({
