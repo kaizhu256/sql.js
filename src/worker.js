@@ -13,7 +13,7 @@
 var createDb;
 var db;
 var sqlModuleReady;
-
+// Detect webworker context
 if (typeof importScripts === "function") {
     db = null;
     createDb = function (data) {
