@@ -3,6 +3,7 @@
     SQL
     importScripts
     initSqlJs
+    postMessage
     self
 */
 // Since this is only included in web worker builds,
@@ -31,10 +32,18 @@ if (typeof importScripts === "function") {
             var done;
             var result;
             data = event.data;
-            switch (data !== null ? data.action : undefined) {
+            switch (
+                data !== null
+                ? data.action
+                : undefined
+            ) {
             case "open":
                 buff = data.buffer;
-                createDb((buff ? new Uint8Array(buff) : undefined));
+                createDb(
+                    buff
+                    ? new Uint8Array(buff)
+                    : undefined
+                );
                 return postMessage({
                     "id": data.id,
                     "ready": true
@@ -81,13 +90,20 @@ if (typeof importScripts === "function") {
                 } catch (ignore) {
                     return postMessage(result);
                 }
-                break;
             case "close":
-                return db !== null ? db.close() : undefined;
+                return (
+                    db !== null
+                    ? db.close()
+                    : undefined
+                );
             default:
-                throw new Error("Invalid action : " + (data !== null ? data.action : undefined));
+                throw new Error("Invalid action : " + (
+                    data !== null
+                    ? data.action
+                    : undefined
+                ));
             }
-        })["catch"](function (err) {
+        }).catch(function (err) {
             return postMessage({
                 "id": event.data.id,
                 "error": err.message
