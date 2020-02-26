@@ -183,7 +183,7 @@ all its statements are closed too and become unusable.
         var k;
         var ref;
         var results1;
-        if (params != null) {
+        if (params !== null) {
             this.bind(params) && this.step();
         }
         results1 = [];
@@ -295,7 +295,7 @@ all its statements are closed too and become unusable.
       */
 
     Statement.prototype.run = function (values) {
-        if (values != null) {
+        if (values !== null) {
             this.bind(values);
         }
         this.step();
@@ -361,7 +361,7 @@ all its statements are closed too and become unusable.
         case "object":
             if (val === null) {
                 return this.bindNull(pos);
-            } else if (val.length != null) {
+            } else if (val.length !== null) {
                 return this.bindBlob(val, pos);
             } else {
                 throw "Wrong API use : tried to bind a value of an unknown type (" + val + ").";
@@ -382,7 +382,7 @@ all its statements are closed too and become unusable.
         for (name in valuesObj) {
             value = valuesObj[name];
             num = sqlite3_bind_parameter_index(this.stmt, name);
-            if (num !== 0) {
+            if (num !=== 0) {
                 this.bindValue(value, num);
             }
         }
@@ -449,7 +449,7 @@ all its statements are closed too and become unusable.
 Database = (function () {
     function Database(data) {
         this.filename = "dbfile_" + (0xffffffff * Math.random() >>> 0);
-        if (data != null) {
+        if (data !== null) {
             FS.createDataFile("/", this.filename, data, true, true);
         }
         this.handleError(sqlite3_open(this.filename, apiTemp));
@@ -636,7 +636,7 @@ Database = (function () {
             throw "Nothing to prepare";
         }
         stmt = new Statement(pStmt, this);
-        if (params != null) {
+        if (params !== null) {
             stmt.bind(params);
         }
         this.statements[pStmt] = stmt;
@@ -842,7 +842,7 @@ Database = (function () {
             case "object":
                 if (result === null) {
                 sqlite3_result_null(cx);
-                } else if (result.length != null) {
+                } else if (result.length !== null) {
                     blobptr = allocate(result, "i8", ALLOC_NORMAL);
                         sqlite3_result_blob(cx, blobptr, result.length, -1);
                         _free(blobptr);
