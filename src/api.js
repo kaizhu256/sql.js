@@ -1,4 +1,4 @@
-/* jslint utility2:true*/
+/* jslint utility2:true */
 // @copyright Ophir LOJKINE
 
 var Database;
@@ -82,11 +82,11 @@ Statement = (function() {
     @throw [String] SQLite Error
       */
 
-    Statement.prototype['bind'] = function(values) {
+    Statement.prototype.bind = function(values) {
         if (!this.stmt) {
             throw "Statement closed";
         }
-        this['reset']();
+        this.reset();
         if (Array.isArray(values)) {
             return this.bindFromArray(values);
         } else {
@@ -102,7 +102,7 @@ Statement = (function() {
     @throw [String] SQLite Error
       */
 
-    Statement.prototype['step'] = function() {
+    Statement.prototype.step = function() {
         var ret;
         if (!this.stmt) {
             throw "Statement closed";
@@ -178,13 +178,13 @@ Statement = (function() {
             while (stmt.step()) console.log(stmt.get());
       */
 
-    Statement.prototype['get'] = function(params) {
+    Statement.prototype.get = function(params) {
         var field;
         var k;
         var ref;
         var results1;
         if (params != null) {
-            this['bind'](params) && this['step']();
+            this.bind(params) && this.step();
         }
         results1 = [];
         for (field = k = 0, ref = sqlite3_data_count(this.stmt); 0 <= ref ? k < ref : k > ref; field = 0 <= ref ? ++k : --k) {
@@ -216,7 +216,7 @@ Statement = (function() {
             console.log(stmt.getColumnNames()); // Will print ['nbr','data','null_value']
       */
 
-    Statement.prototype['getColumnNames'] = function() {
+    Statement.prototype.getColumnNames = function() {
         var i;
         var k;
         var ref;
@@ -242,7 +242,7 @@ Statement = (function() {
             console.log(stmt.getAsObject()); // Will print {nbr:5, data: Uint8Array([1,2,3]), null_value:null}
       */
 
-    Statement.prototype['getAsObject'] = function(params) {
+    Statement.prototype.getAsObject = function(params) {
         var i;
         var k;
         var len;
@@ -250,8 +250,8 @@ Statement = (function() {
         var names;
         var rowObject;
         var values;
-        values = this['get'](params);
-        names = this['getColumnNames']();
+        values = this.get(params);
+        names = this.getColumnNames();
         rowObject = {};
         for (i = k = 0, len = names.length; k < len; i = ++k) {
             name = names[i];
@@ -266,12 +266,12 @@ Statement = (function() {
     @param [Array,Object] Value to bind to the statement
       */
 
-    Statement.prototype['run'] = function(values) {
+    Statement.prototype.run = function(values) {
         if (values != null) {
-            this['bind'](values);
+            this.bind(values);
         }
-        this['step']();
-        return this['reset']();
+        this.step();
+        return this.reset();
     };
 
     // Internal methods to bind values to parameters
@@ -381,7 +381,7 @@ Statement = (function() {
     It also clears all previous bindings, freeing the memory used by bound parameters.
       */
 
-    Statement.prototype['reset'] = function() {
+    Statement.prototype.reset = function() {
         this.freemem();
         return sqlite3_clear_bindings(this.stmt) === SQLite.OK && sqlite3_reset(this.stmt) === SQLite.OK;
     };
@@ -403,7 +403,7 @@ Statement = (function() {
     @return [Boolean] true in case of success
       */
 
-    Statement.prototype['free'] = function() {
+    Statement.prototype.free = function() {
         var res;
         this.freemem();
         res = sqlite3_finalize(this.stmt) === SQLite.OK;
@@ -444,17 +444,17 @@ Database = (function() {
     @return [Database] The database object (useful for method chaining)
       */
 
-    Database.prototype['run'] = function(sql, params) {
+    Database.prototype.run = function(sql, params) {
         var stmt;
         if (!this.db) {
             throw "Database closed";
         }
         if (params) {
-            stmt = this['prepare'](sql, params);
+            stmt = this.prepare(sql, params);
             try {
-                stmt['step']();
+                stmt.step();
             } finally {
-                stmt['free']();
+                stmt.free();
             }
         } else {
             this.handleError(sqlite3_exec(this.db, sql, 0, 0, apiTemp));
@@ -503,7 +503,7 @@ Database = (function() {
     @return [Array<QueryResults>] An array of results.
       */
 
-    Database.prototype['exec'] = function(sql) {
+    Database.prototype.exec = function(sql) {
         var curresult, nextSqlPtr, pStmt, pzTail, results, stack, stmt;
         if (!this.db) {
             throw "Database closed";
@@ -525,18 +525,18 @@ Database = (function() {
                 curresult = null;
                 stmt = new Statement(pStmt, this);
                 try {
-                    while (stmt['step']()) {
+                    while (stmt.step()) {
                         if (curresult === null) {
                             curresult = {
-                                'columns': stmt['getColumnNames'](),
+                                'columns': stmt.getColumnNames(),
                                 'values': []
                             };
                             results.push(curresult);
                         }
-                        curresult['values'].push(stmt['get']());
+                        curresult.values.push(stmt.get());
                     }
                 } finally {
-                    stmt['free']();
+                    stmt.free();
                 }
             }
             return results;
@@ -567,20 +567,20 @@ Database = (function() {
                                     );
       */
 
-    Database.prototype['each'] = function(sql, params, callback, done) {
+    Database.prototype.each = function(sql, params, callback, done) {
         var stmt;
         if (typeof params === 'function') {
             done = callback;
             callback = params;
             params = void 0;
         }
-        stmt = this['prepare'](sql, params);
+        stmt = this.prepare(sql, params);
         try {
-            while (stmt['step']()) {
-                callback(stmt['getAsObject']());
+            while (stmt.step()) {
+                callback(stmt.getAsObject());
             }
         } finally {
-            stmt['free']();
+            stmt.free();
         }
         if (typeof done === 'function') {
             return done();
@@ -595,7 +595,7 @@ Database = (function() {
     @throw [String] SQLite error
       */
 
-    Database.prototype['prepare'] = function(sql, params) {
+    Database.prototype.prepare = function(sql, params) {
         var pStmt;
         var stmt;
         setValue(apiTemp, 0, 'i32');
@@ -617,7 +617,7 @@ Database = (function() {
     @return [Uint8Array] An array of bytes of the SQLite3 database file
       */
 
-    Database.prototype['export'] = function() {
+    Database.prototype.export = function() {
         var _;
         var binaryDb;
         var func;
@@ -627,7 +627,7 @@ Database = (function() {
         ref = this.statements;
         for (_ in ref) {
             stmt = ref[_];
-            stmt['free']();
+            stmt.free();
         }
         ref1 = this.functions;
         for (_ in ref1) {
@@ -657,7 +657,7 @@ Database = (function() {
     memory consumption will grow forever
       */
 
-    Database.prototype['close'] = function() {
+    Database.prototype.close = function() {
         var _;
         var func;
         var ref;
@@ -666,7 +666,7 @@ Database = (function() {
         ref = this.statements;
         for (_ in ref) {
             stmt = ref[_];
-            stmt['free']();
+            stmt.free();
         }
         ref1 = this.functions;
         for (_ in ref1) {
@@ -704,7 +704,7 @@ Database = (function() {
     @return [Number] the number of rows modified
       */
 
-    Database.prototype['getRowsModified'] = function() {
+    Database.prototype.getRowsModified = function() {
         return sqlite3_changes(this.db);
     };
 
@@ -718,7 +718,7 @@ Database = (function() {
     @param func [Function] the actual function to be executed.
       */
 
-    Database.prototype['create_function'] = function(name, func) {
+    Database.prototype.create_function = function(name, func) {
         var func_ptr;
         var wrapped_func;
         wrapped_func = function(cx, argc, argv) {
