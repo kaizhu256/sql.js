@@ -26,11 +26,11 @@ all its statements are closed too and become unusable.
 @see https://en.wikipedia.org/wiki/Prepared_statement
  */
 
-Statement = (function() {
+(function() {
     // Statements can't be created by the API user, only by Database::prepare
     // @private
     // @nodoc
-    function Statement(stmt1, db) {
+    Statement = function (stmt1, db) {
         this.stmt = stmt1;
         this.db = db;
         // Index of the leftmost parameter is 1
@@ -38,7 +38,7 @@ Statement = (function() {
         // Pointers to allocated memory,
         // that need to be freed when the statemend is destroyed
         this.allocatedmem = [];
-    }
+    };
 
 
     /* Bind values to the parameters, after having reseted the statement
@@ -401,9 +401,14 @@ Statement = (function() {
         var len;
         var num;
         var value;
-        for (num = k = 0, len = values.length; k < len; num = ++k) {
+        num = 0;
+        k = 0;
+        len = values.length;
+        while (k < len) {
             value = values[num];
             this.bindValue(value, num + 1);
+            k += 1;
+            num = k;
         }
         return true;
     };
@@ -536,7 +541,13 @@ Database = (function() {
       */
 
     Database.prototype.exec = function(sql) {
-        var curresult, nextSqlPtr, pStmt, pzTail, results, stack, stmt;
+        var curresult;
+        var nextSqlPtr;
+        var pStmt;
+        var pzTail;
+        var results;
+        var stack;
+        var stmt;
         if (!this.db) {
             throw "Database closed";
         }
