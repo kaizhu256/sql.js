@@ -1,5 +1,5 @@
 /* jslint utility2:true */
-/*global Module*/
+/*global Database Module*/
 var RegisterExtensionFunctions; // jslint ignore:line
 var sqlite3_bind_blob; // jslint ignore:line
 var sqlite3_bind_double; // jslint ignore:line
@@ -68,8 +68,11 @@ sqlite3_prepare_v2_sqlptr = Module.cwrap("sqlite3_prepare_v2", "number", [
 ]);
 //// Bind parameters
 
-// int sqlite3_bind_text(sqlite3_stmt*, int, const char*, int n, void(*)(void*));
-// We declare const char* as a number, because we will manually allocate the memory and pass a pointer to the function
+// int sqlite3_bind_text(
+//     sqlite3_stmt*, int, const char*, int n, void(*)(void*)
+// );
+// We declare const char* as a number, because we will manually allocate
+// the memory and pass a pointer to the function
 sqlite3_bind_text = Module.cwrap("sqlite3_bind_text", "number", [
     "number", "number", "number", "number", "number"
 ]);
@@ -82,9 +85,13 @@ sqlite3_bind_double = Module.cwrap("sqlite3_bind_double", "number", [
 sqlite3_bind_int = Module.cwrap("sqlite3_bind_int", "number", [
     "number", "number", "number"
 ]);
-sqlite3_bind_parameter_index = Module.cwrap("sqlite3_bind_parameter_index", "number", [
-    "number", "string"
-]);
+sqlite3_bind_parameter_index = Module.cwrap(
+    "sqlite3_bind_parameter_index",
+    "number",
+    [
+        "number", "string"
+    ]
+);
 sqlite3_step = Module.cwrap("sqlite3_step", "number", [
     "number"
 ]);
@@ -121,9 +128,21 @@ sqlite3_clear_bindings = Module.cwrap("sqlite3_clear_bindings", "number", [
 sqlite3_finalize = Module.cwrap("sqlite3_finalize", "number", [
     "number"
 ]);
-sqlite3_create_function_v2 = Module.cwrap("sqlite3_create_function_v2", "number", [
-    "number", "string", "number", "number", "number", "number", "number", "number", "number"
-]);
+sqlite3_create_function_v2 = Module.cwrap(
+    "sqlite3_create_function_v2",
+    "number",
+    [
+        "number",
+        "string",
+        "number",
+        "number",
+        "number",
+        "number",
+        "number",
+        "number",
+        "number"
+    ]
+);
 sqlite3_value_type = Module.cwrap("sqlite3_value_type", "number", [
     "number"
 ]);
@@ -163,9 +182,13 @@ sqlite3_result_int64 = Module.cwrap("sqlite3_result_int64", "", [
 sqlite3_result_error = Module.cwrap("sqlite3_result_error", "", [
     "number", "string", "number"
 ]);
-RegisterExtensionFunctions = Module.cwrap("RegisterExtensionFunctions", "number", [
-    "number"
-]);
+RegisterExtensionFunctions = Module.cwrap(
+    "RegisterExtensionFunctions",
+    "number",
+    [
+        "number"
+    ]
+);
 this.SQL = {
     "Database": Database
 };
