@@ -35,6 +35,11 @@
     sqlite3_prepare_v2_sqlptr
     sqlite3_reset
     sqlite3_step
+    sqlite3_value_blob
+    sqlite3_value_bytes
+    sqlite3_value_double
+    sqlite3_value_text
+    sqlite3_value_type
     stackAlloc
     stackSave
 */
@@ -822,76 +827,69 @@ all its statements are closed too and become unusable.
             var arg;
             var args;
             var blobptr;
+            var data_func4;
             var data_func;
             var error;
             var i;
-            var k;
-            var ref;
+            var nop;
             var result;
             var value_ptr;
             var value_type;
+            data_func4 = function (ptr) {
+                var blob_arg;
+                var blob_ptr;
+                var j;
+                var l;
+                var ref1;
+                var size;
+                size = sqlite3_value_bytes(ptr);
+                blob_ptr = sqlite3_value_blob(ptr);
+                blob_arg = new Uint8Array(size);
+                j = 0;
+                l = 0;
+                ref1 = size;
+                while (
+                    0 <= ref1
+                        ? l < ref1
+                    : l > ref1
+                ) {
+                    blob_arg[j] = HEAP8[blob_ptr + j];
+                    l += (
+                        0 <= ref1
+                        ? 1
+                        : -1
+                    );
+                    j = l;
+                }
+                return blob_arg;
+            };
+            nop = function () {
+                return null;
+            };
             args = [];
             i = 0;
-            k = 0;
-            ref = argc;
-            while (
-                0 <= ref
-                ? k < ref
-                : k > ref
-            ) {
+            while (i < argc) {
                 value_ptr = getValue(argv + (4 * i), "i32");
                 value_type = sqlite3_value_type(value_ptr);
-                data_func = (function () {
-                    switch (false) {
-                    case value_type !== 1:
-                        return sqlite3_value_double;
-                    case value_type !== 2:
-                        return sqlite3_value_double;
-                    case value_type !== 3:
-                        return sqlite3_value_text;
-                    case value_type !== 4:
-                        return function (ptr) {
-                            var blob_arg;
-                            var blob_ptr;
-                            var j;
-                            var l;
-                            var ref1;
-                            var size;
-                            size = sqlite3_value_bytes(ptr);
-                            blob_ptr = sqlite3_value_blob(ptr);
-                            blob_arg = new Uint8Array(size);
-                            j = 0;
-                            l = 0;
-                            ref1 = size;
-                            while (
-                                0 <= ref1
-                                    ? l < ref1
-                                : l > ref1
-                            ) {
-                                blob_arg[j] = HEAP8[blob_ptr + j];
-                                l += (
-                                    0 <= ref1
-                                    ? 1
-                                    : -1
-                                );
-                                j = l;
-                            }
-                            return blob_arg;
-                        };
-                    default:
-                        return function (ptr) {
-                            return null;
-                        };
-                    }
-                })();
+                switch (value_type) {
+                case 1:
+                    data_func = sqlite3_value_double;
+                    break;
+                case 2:
+                    data_func = sqlite3_value_double;
+                    break;
+                case 3:
+                    data_func = sqlite3_value_text;
+                    break;
+                case 4:
+                    data_func = data_func4;
+                    break;
+                default:
+                    data_func = nop;
+                }
                 arg = data_func(value_ptr);
                 args.push(arg);
-                k += (
-                    0 <= ref
-                    ? 1
-                    : -1
-                );
-                i = k;
+                i += 1;
             }
             try {
                 result = func.apply(null, args);
