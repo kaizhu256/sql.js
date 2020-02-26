@@ -34,6 +34,12 @@
     sqlite3_prepare_v2
     sqlite3_prepare_v2_sqlptr
     sqlite3_reset
+    sqlite3_result_blob
+    sqlite3_result_double
+    sqlite3_result_error
+    sqlite3_result_int
+    sqlite3_result_null
+    sqlite3_result_text
     sqlite3_step
     sqlite3_value_blob
     sqlite3_value_bytes
@@ -839,27 +845,14 @@ all its statements are closed too and become unusable.
                 var blob_arg;
                 var blob_ptr;
                 var j;
-                var l;
-                var ref1;
                 var size;
                 size = sqlite3_value_bytes(ptr);
                 blob_ptr = sqlite3_value_blob(ptr);
                 blob_arg = new Uint8Array(size);
                 j = 0;
-                l = 0;
-                ref1 = size;
-                while (
-                    0 <= ref1
-                        ? l < ref1
-                    : l > ref1
-                ) {
+                while (j < size) {
                     blob_arg[j] = HEAP8[blob_ptr + j];
-                    l += (
-                        0 <= ref1
-                        ? 1
-                        : -1
-                    );
-                    j = l;
+                    j += 1;
                 }
                 return blob_arg;
             };
@@ -900,29 +893,33 @@ all its statements are closed too and become unusable.
             }
             switch (typeof result) {
             case "boolean":
-            sqlite3_result_int(cx, result ? 1 : 0);
+                sqlite3_result_int(cx, (
+                    result
+                    ? 1
+                    : 0
+                ));
                 break;
             case "number":
-            sqlite3_result_double(cx, result);
+                sqlite3_result_double(cx, result);
                 break;
             case "string":
-            sqlite3_result_text(cx, result, -1, -1);
+                sqlite3_result_text(cx, result, -1, -1);
                 break;
             case "object":
                 if (result === null || result === undefined) {
-                sqlite3_result_null(cx);
+                    sqlite3_result_null(cx);
                 } else if (
                     result.length !== null && result.length !== undefined
                 ) {
                     blobptr = allocate(result, "i8", ALLOC_NORMAL);
-                        sqlite3_result_blob(cx, blobptr, result.length, -1);
+                    sqlite3_result_blob(cx, blobptr, result.length, -1);
                     _free(blobptr);
                 } else {
-                sqlite3_result_error(cx, "Wrong API use : tried to return a value of an unknown type (" + result + ").", -1);
+                    sqlite3_result_error(cx, "Wrong API use : tried to return a value of an unknown type (" + result + ").", -1);
                 }
                 break;
             default:
-            sqlite3_result_null(cx);
+                sqlite3_result_null(cx);
             }
         };
         if (name in this.functions) {
