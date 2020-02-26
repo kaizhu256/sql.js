@@ -1,6 +1,6 @@
 /* jslint utility2:true */
 /*global
-    HEAPB
+    HEAP8
     sqlite3_column_blob
     sqlite3_column_bytes
     sqlite3_column_double
@@ -147,9 +147,7 @@ all its statements are closed too and become unusable.
 
     Statement.prototype.getBlob = function (pos) {
         var i;
-        var k;
         var ptr;
-        var ref;
         var result;
         var size;
         if (pos === null) {
@@ -160,34 +158,25 @@ all its statements are closed too and become unusable.
         ptr = sqlite3_column_blob(this.stmt, pos);
         result = new Uint8Array(size);
         i = 0;
-        k = 0;
-        ref = size;
-        while (
-            0 <= ref
-            ? k < ref
-            : k > ref
-        ) {
+        while (i < size) {
             result[i] = HEAP8[ptr + i];
-            k += (
-                0 <= ref
-                ? 1
-                : -1
-            );
-            i = k;
+            i += 1;
         }
         return result;
     };
 
     /* Get one row of results of a statement.
-    If the first parameter is not provided, step must have been called before get.
-    @param [Array,Object] Optional: If set, the values will be bound to the statement, and it will be executed
+    If the first parameter is not provided, step must have been called
+    before get.
+    @param [Array,Object] Optional: If set, the values will be bound
+    to the statement, and it will be executed
     @return [Array<String,Number,Uint8Array,null>] One row of result
 
     @example Print all the rows of the table test to the console
 
-            var stmt = db.prepare("SELECT * FROM test");
-            while (stmt.step()) console.log(stmt.get());
-      */
+        var stmt = db.prepare("SELECT * FROM test");
+        while (stmt.step()) console.log(stmt.get());
+    */
 
     Statement.prototype.get = function (params) {
         var field;
