@@ -1,4 +1,4 @@
-/* jslint utility2:true */
+/* jslint utility2:true*/
 // @copyright Ophir LOJKINE
 
 var Database;
@@ -118,6 +118,8 @@ Statement = (function() {
         }
     };
 
+    // Internal methods to retrieve data from the results of a statement
+    // that has been executed
     Statement.prototype.getNumber = function(pos) {
         if (pos == null) {
             pos = this.pos++;
@@ -272,6 +274,7 @@ Statement = (function() {
         return this['reset']();
     };
 
+    // Internal methods to bind values to parameters
     Statement.prototype.bindString = function(string, pos) {
         var bytes;
         var strptr;
@@ -311,6 +314,7 @@ Statement = (function() {
         return sqlite3_bind_blob(this.stmt, pos, 0, 0, 0) === SQLite.OK;
     };
 
+    // Call bindNumber or bindString appropriatly
     Statement.prototype.bindValue = function(val, pos) {
         if (pos == null) {
             pos = this.pos++;
