@@ -17,6 +17,7 @@
     sqlite3_bind_double
     sqlite3_bind_parameter_index
     sqlite3_bind_text
+    sqlite3_changes
     sqlite3_clear_bindings
     sqlite3_close_v2
     sqlite3_column_blob
@@ -26,6 +27,7 @@
     sqlite3_column_text
     sqlite3_column_type
     sqlite3_data_count
+    sqlite3_errmsg
     sqlite3_exec
     sqlite3_finalize
     sqlite3_open
@@ -755,25 +757,25 @@ all its statements are closed too and become unusable.
       */
 
     Database.prototype.close = function () {
-        var _;
         var func;
         var ref1;
         var ref;
         var stmt;
         ref = this.statements;
-        for (_ in ref) {
+        Object.keys(ref).forEach(function (_) {
             stmt = ref[_];
             stmt.free();
-        }
+        });
         ref1 = this.functions;
-        for (_ in ref1) {
+        Object.keys(ref1).forEach(function (_) {
             func = ref1[_];
             removeFunction(func);
-        }
+        });
         this.functions = {};
         this.handleError(sqlite3_close_v2(this.db));
         FS.unlink("/" + this.filename);
-        return this.db = null;
+        this.db = null;
+        return this.db;
     };
 
     /* Analyze a result code, return null if no error occured, and throw
@@ -805,12 +807,13 @@ all its statements are closed too and become unusable.
 
     /* Register a custom function with SQLite
     @example Register a simple function
-            db.create_function("addOne", function(x) {return x+1;})
-            db.exec("SELECT addOne(1)") // = 2
+        db.create_function("addOne", function(x) {return x+1;})
+        db.exec("SELECT addOne(1)") // = 2
 
-    @param name [String] the name of the function as referenced in SQL statements.
+    @param name [String] the name of the function
+    as referenced in SQL statements.
     @param func [Function] the actual function to be executed.
-      */
+    */
 
     Database.prototype.create_function = function (name, func) {
         var func_ptr;
