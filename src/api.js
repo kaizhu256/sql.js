@@ -10,6 +10,7 @@
     allocateUTF8OnStack
     getValue
     intArrayFromString
+    removeFunction
     setValue
     sqlite3_bind_blob
     sqlite3_bind_int
@@ -17,6 +18,7 @@
     sqlite3_bind_parameter_index
     sqlite3_bind_text
     sqlite3_clear_bindings
+    sqlite3_close_v2
     sqlite3_column_blob
     sqlite3_column_bytes
     sqlite3_column_double
@@ -715,22 +717,21 @@ all its statements are closed too and become unusable.
       */
 
     Database.prototype.export = function () {
-        var _;
         var binaryDb;
         var func;
         var ref1;
         var ref;
         var stmt;
         ref = this.statements;
-        for (_ in ref) {
+        Object.keys(ref).forEach(function (_) {
             stmt = ref[_];
             stmt.free();
-        }
+        });
         ref1 = this.functions;
-        for (_ in ref1) {
+        Object.keys(ref1).forEach(function (_) {
             func = ref1[_];
             removeFunction(func);
-        }
+        });
         this.functions = {};
         this.handleError(sqlite3_close_v2(this.db));
         binaryDb = FS.readFile(this.filename, {
