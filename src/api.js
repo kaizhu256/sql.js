@@ -4,7 +4,10 @@
     sqlite3_column_blob
     sqlite3_column_bytes
     sqlite3_column_double
+    sqlite3_column_name
     sqlite3_column_text
+    sqlite3_column_type
+    sqlite3_data_count
     sqlite3_step
     stackAlloc
 */
@@ -180,21 +183,17 @@ all its statements are closed too and become unusable.
 
     Statement.prototype.get = function (params) {
         var field;
-        var k;
         var ref;
         var results1;
         if (params !== null) {
-            this.bind(params) && this.step();
+            if (this.bind(params)) {
+                this.step();
+            }
         }
         results1 = [];
         field = 0;
-        k = 0;
         ref = sqlite3_data_count(this.stmt);
-        while (
-            0 <= ref
-            ? k < ref
-            : k > ref
-        ) {
+        while (field < ref) {
             switch (sqlite3_column_type(this.stmt, field)) {
             case SQLite.INTEGER:
             case SQLite.FLOAT:
@@ -209,12 +208,7 @@ all its statements are closed too and become unusable.
             default:
                 results1.push(null);
             }
-            k += (
-                0 <= ref
-                ? 1
-                : -1
-            );
-            field = k;
+            field += 1;
         }
         return results1;
     };
@@ -223,48 +217,44 @@ all its statements are closed too and become unusable.
     @return [Array<String>] The names of the columns
     @example
 
-            var stmt = db.prepare("SELECT 5 AS nbr, x'616200' AS data, NULL AS null_value;");
-            stmt.step(); // Execute the statement
-            console.log(stmt.getColumnNames()); // Will print ['nbr','data','null_value']
-      */
+        var stmt = db.prepare(
+            "SELECT 5 AS nbr, x'616200' AS data, NULL AS null_value;"
+        );
+        stmt.step(); // Execute the statement
+        console.log(stmt.getColumnNames());
+        // Will print ['nbr','data','null_value']
+    */
 
     Statement.prototype.getColumnNames = function () {
         var i;
-        var k;
         var ref;
         var results1;
         results1 = [];
         i = 0;
-        k = 0;
         ref = sqlite3_data_count(this.stmt);
-        while (
-            0 <= ref
-            ? k < ref
-            : k > ref
-        ) {
+        while (i < ref) {
             results1.push(sqlite3_column_name(this.stmt, i));
-            k += (
-                0 <= ref
-                ? 1
-                : -1
-            );
-            i = k;
+            i += 1;
         }
         return results1;
     };
 
-    /* Get one row of result as a javascript object, associating column names with
-    their value in the current row.
-    @param [Array,Object] Optional: If set, the values will be bound to the statement, and it will be executed
+    /* Get one row of result as a javascript object, associating column names
+    with their value in the current row.
+    @param [Array,Object] Optional: If set, the values will be bound
+    to the statement, and it will be executed
     @return [Object] The row of result
     @see [Statement.get](#get-dynamic)
 
     @example
 
-            var stmt = db.prepare("SELECT 5 AS nbr, x'616200' AS data, NULL AS null_value;");
-            stmt.step(); // Execute the statement
-            console.log(stmt.getAsObject()); // Will print {nbr:5, data: Uint8Array([1,2,3]), null_value:null}
-      */
+        var stmt = db.prepare(
+            "SELECT 5 AS nbr, x'616200' AS data, NULL AS null_value;"
+        );
+        stmt.step(); // Execute the statement
+        console.log(stmt.getAsObject());
+        // Will print {nbr:5, data: Uint8Array([1,2,3]), null_value:null}
+    */
 
     Statement.prototype.getAsObject = function (params) {
         var i;
@@ -290,7 +280,8 @@ all its statements are closed too and become unusable.
     };
 
     /* Shorthand for bind + step + reset
-    Bind the values, execute the statement, ignoring the rows it returns, and resets it
+    Bind the values, execute the statement, ignoring the rows it returns,
+    and resets it
     @param [Array,Object] Value to bind to the statement
       */
 
@@ -312,7 +303,9 @@ all its statements are closed too and become unusable.
         }
         bytes = intArrayFromString(string);
         this.allocatedmem.push(strptr = allocate(bytes, "i8", ALLOC_NORMAL));
-        this.db.handleError(sqlite3_bind_text(this.stmt, pos, strptr, bytes.length - 1, 0));
+        this.db.handleError(
+            sqlite3_bind_text(this.stmt, pos, strptr, bytes.length - 1, 0)
+        );
         return true;
     };
 
@@ -382,7 +375,7 @@ all its statements are closed too and become unusable.
         for (name in valuesObj) {
             value = valuesObj[name];
             num = sqlite3_bind_parameter_index(this.stmt, name);
-            if (num !=== 0) {
+            if (num !== 0) {
                 this.bindValue(value, num);
             }
         }
