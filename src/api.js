@@ -158,7 +158,7 @@ all its statements are closed too and become unusable.
     // Internal methods to retrieve data from the results of a statement
     // that has been executed
     Statement.prototype.getNumber = function (pos) {
-        if (pos === null) {
+        if (pos === null || pos === undefined) {
             pos = this.pos;
             this.pos += 1;
         }
@@ -166,7 +166,7 @@ all its statements are closed too and become unusable.
     };
 
     Statement.prototype.getString = function (pos) {
-        if (pos === null) {
+        if (pos === null || pos === undefined) {
             pos = this.pos;
             this.pos += 1;
         }
@@ -178,7 +178,7 @@ all its statements are closed too and become unusable.
         var ptr;
         var result;
         var size;
-        if (pos === null) {
+        if (pos === null || pos === undefined) {
             pos = this.pos;
             this.pos += 1;
         }
@@ -322,7 +322,7 @@ all its statements are closed too and become unusable.
     Statement.prototype.bindString = function (string, pos) {
         var bytes;
         var strptr;
-        if (pos === null) {
+        if (pos === null || pos === undefined) {
             pos = this.pos;
             this.pos += 1;
         }
@@ -337,7 +337,7 @@ all its statements are closed too and become unusable.
 
     Statement.prototype.bindBlob = function (array, pos) {
         var blobptr;
-        if (pos === null) {
+        if (pos === null || pos === undefined) {
             pos = this.pos;
             this.pos += 1;
         }
@@ -351,7 +351,7 @@ all its statements are closed too and become unusable.
 
     Statement.prototype.bindNumber = function (num, pos) {
         var bindfunc;
-        if (pos === null) {
+        if (pos === null || pos === undefined) {
             pos = this.pos;
             this.pos += 1;
         }
@@ -365,7 +365,7 @@ all its statements are closed too and become unusable.
     };
 
     Statement.prototype.bindNull = function (pos) {
-        if (pos === null) {
+        if (pos === null || pos === undefined) {
             pos = this.pos;
             this.pos += 1;
         }
@@ -374,7 +374,7 @@ all its statements are closed too and become unusable.
 
     // Call bindNumber or bindString appropriatly
     Statement.prototype.bindValue = function (val, pos) {
-        if (pos === null) {
+        if (pos === null || pos === undefined) {
             pos = this.pos;
             this.pos += 1;
         }
@@ -385,7 +385,7 @@ all its statements are closed too and become unusable.
         case "boolean":
             return this.bindNumber(val + 0, pos);
         case "object":
-            if (val === null) {
+            if (val === null || val === undefined) {
                 return this.bindNull(pos);
             } else if (val.length !== null) {
                 return this.bindBlob(val, pos);
@@ -618,7 +618,7 @@ all its statements are closed too and become unusable.
                     stmt = new Statement(pStmt, this);
                     try {
                         while (stmt.step()) {
-                            if (curresult === null) {
+                            if (curresult === null || curresult === undefined) {
                                 curresult = {
                                     "columns": stmt.getColumnNames(),
                                     "values": []
@@ -908,7 +908,7 @@ all its statements are closed too and become unusable.
             sqlite3_result_text(cx, result, -1, -1);
                 break;
             case "object":
-                if (result === null) {
+                if (result === null || result === undefined) {
                 sqlite3_result_null(cx);
                 } else if (result.length !== null) {
                     blobptr = allocate(result, "i8", ALLOC_NORMAL);
