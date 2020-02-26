@@ -232,7 +232,13 @@ Statement = (function() {
       */
 
     Statement.prototype['getAsObject'] = function(params) {
-        var i, k, len, name, names, rowObject, values;
+        var i;
+        var k;
+        var len;
+        var name;
+        var names;
+        var rowObject;
+        var values;
         values = this['get'](params);
         names = this['getColumnNames']();
         rowObject = {};
@@ -258,7 +264,8 @@ Statement = (function() {
     };
 
     Statement.prototype.bindString = function(string, pos) {
-        var bytes, strptr;
+        var bytes;
+        var strptr;
         if (pos == null) {
             pos = this.pos++;
         }
@@ -324,7 +331,9 @@ Statement = (function() {
       */
 
     Statement.prototype.bindFromObject = function(valuesObj) {
-        var name, num, value;
+        var name;
+        var num;
+        var value;
         for (name in valuesObj) {
             value = valuesObj[name];
             num = sqlite3_bind_parameter_index(this.stmt, name);
@@ -343,7 +352,10 @@ Statement = (function() {
       */
 
     Statement.prototype.bindFromArray = function(values) {
-        var k, len, num, value;
+        var k;
+        var len;
+        var num;
+        var value;
         for (num = k = 0, len = values.length; k < len; num = ++k) {
             value = values[num];
             this.bindValue(value, num + 1);
@@ -571,7 +583,8 @@ Database = (function() {
       */
 
     Database.prototype['prepare'] = function(sql, params) {
-        var pStmt, stmt;
+        var pStmt;
+        var stmt;
         setValue(apiTemp, 0, 'i32');
         this.handleError(sqlite3_prepare_v2(this.db, sql, -1, apiTemp, NULL));
         pStmt = getValue(apiTemp, 'i32');
@@ -592,7 +605,12 @@ Database = (function() {
       */
 
     Database.prototype['export'] = function() {
-        var _, binaryDb, func, ref, ref1, stmt;
+        var _;
+        var binaryDb;
+        var func;
+        var ref;
+        var ref1;
+        var stmt;
         ref = this.statements;
         for (_ in ref) {
             stmt = ref[_];
@@ -627,7 +645,11 @@ Database = (function() {
       */
 
     Database.prototype['close'] = function() {
-        var _, func, ref, ref1, stmt;
+        var _;
+        var func;
+        var ref;
+        var ref1;
+        var stmt;
         ref = this.statements;
         for (_ in ref) {
             stmt = ref[_];
@@ -684,9 +706,20 @@ Database = (function() {
       */
 
     Database.prototype['create_function'] = function(name, func) {
-        var func_ptr, wrapped_func;
+        var func_ptr;
+        var wrapped_func;
         wrapped_func = function(cx, argc, argv) {
-            var arg, args, blobptr, data_func, error, i, k, ref, result, value_ptr, value_type;
+            var arg;
+            var args;
+            var blobptr;
+            var data_func;
+            var error;
+            var i;
+            var k;
+            var ref;
+            var result;
+            var value_ptr;
+            var value_type;
             args = [];
             for (i = k = 0, ref = argc; 0 <= ref ? k < ref : k > ref; i = 0 <= ref ? ++k : --k) {
                 value_ptr = getValue(argv + (4 * i), 'i32');
@@ -701,7 +734,12 @@ Database = (function() {
                             return sqlite3_value_text;
                         case value_type !== 4:
                             return function(ptr) {
-                                var blob_arg, blob_ptr, j, l, ref1, size;
+                                var blob_arg;
+                                var blob_ptr;
+                                var j;
+                                var l;
+                                var ref1;
+                                var size;
                                 size = sqlite3_value_bytes(ptr);
                                 blob_ptr = sqlite3_value_blob(ptr);
                                 blob_arg = new Uint8Array(size);
