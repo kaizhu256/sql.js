@@ -58,8 +58,8 @@ exports.test = function (SQL, assert, done) {
         "Newly created databases should be empty");
     // Testing db.each
     db.run("CREATE TABLE test (a,b); INSERT INTO test VALUES (1,'a'),(2,'b')");
-    var count = 0; var
-        finished = false;
+    var count = 0;
+    var finished = false;
     db.each("SELECT * FROM test ORDER BY a", function callback(row) {
         count += 1;
         if (count === 1) {

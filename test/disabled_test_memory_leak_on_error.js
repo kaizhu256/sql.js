@@ -3,8 +3,8 @@
 "use strict";
 
 exports.test = function (sql, assert) {
-    var errors = 0; var
-        runs = 10000;
+    var errors = 0;
+    var runs = 10000;
     for (var i = 0; i < runs; i += 1) {
         var db = new sql.Database();
         try {
