@@ -21,7 +21,6 @@ module.exports = {
         "/out/",
         "/src/shell-post.js",
         "/src/shell-pre.js",
-        "/test/test_worker.js",
         "!/.eslintrc.js"
     ],
     parserOptions: {
