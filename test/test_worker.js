@@ -26,6 +26,7 @@ function Worker(handle) {
 Worker.fromFile = function (file) {
     var source;
     return puppeteer.launch({
+        // uncomment line below if running test inside docker as root
         // args: ["--no-sandbox"]
     }).then(function (browser) {
         return browser.newPage();

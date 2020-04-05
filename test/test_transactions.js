@@ -71,8 +71,5 @@ if (module === require.main) {
                 exports.test(sql, assert);
             }
         });
-    }).catch(function (e) {
-        console.error(e);
-        assert.fail(e);
     });
 }

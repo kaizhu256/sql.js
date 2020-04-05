@@ -20,6 +20,4 @@ sqlLibLoader(sqlLibType).then(function (sql) {
         }
     }
     if (module === require.main) require("test").run(exports);
-}).catch(function (e) {
-    console.error(e);
 });

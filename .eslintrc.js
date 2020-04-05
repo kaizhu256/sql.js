@@ -11,8 +11,7 @@ module.exports = {
     ],
     globals: {
         Atomics: "readonly",
-        SharedArrayBuffer: "readonly",
-        assert: "readonly"
+        SharedArrayBuffer: "readonly"
     },
     ignorePatterns: [
         "/dist/",

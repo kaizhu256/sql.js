@@ -109,8 +109,5 @@ if (module === require.main) {
                 exports.test(sql, assert, done);
             }
         });
-    }).catch(function (e) {
-        console.error(e);
-        assert.fail(e);
     });
 }
