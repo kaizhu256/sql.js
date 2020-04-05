@@ -29,26 +29,45 @@ module.exports = {
         sourceType: "script"
     },
     rules: {
+        // reason - sqlite exposes functions with underscore-naming-convention
         camelcase: "off",
         "comma-dangle": "off",
+        // reason - string-notation needed to prevent closure-minifier
+        // from mangling property-name
         "dot-notation": "off",
-        "global-require": "off",
+        // reason - test-cases use nameless, anonymous-functions for callbacks
         "func-names": "off",
+        // reason - test-cases use lazy/conditional require
+        "global-require": "off",
+        // reason - test-cases use dynamic require
         "import/no-dynamic-require": "off",
+        // reason - enforce 4-space indent
         indent: ["error", 4, { SwitchCase: 1 }],
+        // reason - enforce 80-column-width limit
         "max-len": ["error", { code: 80 }],
+        // reason - src/api.js uses bitwise-operators
         "no-bitwise": "off",
         "no-cond-assign": ["error", "except-parens"],
+        // reason - test-cases use console.log and console.error
         "no-console": ["error", { allow: ["error", "log"] }],
         "no-param-reassign": "off",
         "no-throw-literal": "off",
+        // reason - parserOptions is set to es5 language-syntax
         "no-var": "off",
+        // reason - parserOptions is set to es5 language-syntax
         "object-shorthand": "off",
+        // reason - parserOptions is set to es5 language-syntax
         "prefer-arrow-callback": "off",
+        // reason - parserOptions is set to es5 language-syntax
         "prefer-destructuring": "off",
+        // reason - parserOptions is set to es5 language-syntax
         "prefer-spread": "off",
+        // reason - parserOptions is set to es5 language-syntax
         "prefer-template": "off",
+        // reason - sql.js frequently use sql-query-strings containing
+        // single-quotes
         quotes: ["error", "double"],
+        // reason - allow top-level "use-strict" in commonjs-modules
         strict: ["error", "safe"],
         "vars-on-top": "off"
     }
