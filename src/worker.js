@@ -12,8 +12,22 @@ function onModuleReady(SQL) {
         db = new SQL.Database(data);
         return db;
     }
-
-    var buff; var data; var result;
+    var buff;
+    var data;
+    var result;
+    function callback(row) {
+        return postMessage({
+            id: data["id"],
+            row: row,
+            finished: false
+        });
+    }
+    function done() {
+        return postMessage({
+            id: data["id"],
+            finished: true
+        });
+    }
     data = this["data"];
     switch (data && data["action"]) {
         case "open":
@@ -38,19 +52,6 @@ function onModuleReady(SQL) {
             if (db === null) {
                 createDb();
             }
-            var callback = function callback(row) {
-                return postMessage({
-                    id: data["id"],
-                    row: row,
-                    finished: false
-                });
-            };
-            var done = function done() {
-                return postMessage({
-                    id: data["id"],
-                    finished: true
-                });
-            };
             return db.each(data["sql"], data["params"], callback, done);
         case "export":
             buff = db["export"]();

@@ -21,11 +21,10 @@ module.exports = {
         "/out/",
         "/src/shell-post.js",
         "/src/shell-pre.js",
-        "/test/test_worker.js",
         "!/.eslintrc.js"
     ],
     parserOptions: {
-        ecmaVersion: 5,
+        ecmaVersion: 8,
         sourceType: "script"
     },
     rules: {
@@ -52,17 +51,17 @@ module.exports = {
         "no-console": ["error", { allow: ["error", "log"] }],
         "no-param-reassign": "off",
         "no-throw-literal": "off",
-        // reason - parserOptions is set to es5 language-syntax
+        // reason - src/api.js is restricted to es5 language-syntax
         "no-var": "off",
-        // reason - parserOptions is set to es5 language-syntax
+        // reason - src/api.js is restricted to es5 language-syntax
         "object-shorthand": "off",
-        // reason - parserOptions is set to es5 language-syntax
+        // reason - src/api.js is restricted to es5 language-syntax
         "prefer-arrow-callback": "off",
-        // reason - parserOptions is set to es5 language-syntax
+        // reason - src/api.js is restricted to es5 language-syntax
         "prefer-destructuring": "off",
-        // reason - parserOptions is set to es5 language-syntax
+        // reason - src/api.js is restricted to es5 language-syntax
         "prefer-spread": "off",
-        // reason - parserOptions is set to es5 language-syntax
+        // reason - src/api.js is restricted to es5 language-syntax
         "prefer-template": "off",
         // reason - sql.js frequently use sql-query-strings containing
         // single-quotes
