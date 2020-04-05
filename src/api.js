@@ -972,7 +972,6 @@ Module["onRuntimeInitialized"] = function onRuntimeInitialized() {
             var args;
             var blobptr;
             var i;
-            var j;
             var result;
             var value_ptr;
             var value_type;
@@ -980,6 +979,7 @@ Module["onRuntimeInitialized"] = function onRuntimeInitialized() {
                 var size = sqlite3_value_bytes(ptr);
                 var blob_ptr = sqlite3_value_blob(ptr);
                 var blob_arg = new Uint8Array(size);
+                var j;
                 for (j = 0; j < size; j += 1) {
                     blob_arg[j] = HEAP8[blob_ptr + j];
                 }
