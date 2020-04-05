@@ -1,7 +1,7 @@
 // TODO: Instead of using puppeteer, we could use the new Node 11 workers via
 // node --experimental-worker test/all.js
 // Then we could do this:
-//const { Worker } = require('worker_threads');
+//var { Worker } = require('worker_threads');
 // But it turns out that the worker_threads interface is just different enough not to work.
 var puppeteer = require("puppeteer");
 var path = require("path");
@@ -12,11 +12,11 @@ class Worker {
     this.handle = handle;
   }
   static async fromFile(file) {
-    const browser = await puppeteer.launch();
-    const page = await browser.newPage();
-    const source = fs.readFileSync(file, 'utf8');
-    const worker = await page.evaluateHandle(x => {
-      const url = URL.createObjectURL(new Blob([x]), { type: 'application/javascript; charset=utf-8' });
+    var browser = await puppeteer.launch();
+    var page = await browser.newPage();
+    var source = fs.readFileSync(file, 'utf8');
+    var worker = await page.evaluateHandle(x => {
+      var url = URL.createObjectURL(new Blob([x]), { type: 'application/javascript; charset=utf-8' });
       return new Worker(url);
     }, source);
     return new Worker(worker);
@@ -41,7 +41,7 @@ exports.test = async function test(SQL, assert) {
     return;
   };
   // If we use puppeteer, we need to pass in this new cwd as the root of the file being loaded:
-  const filename = "../dist/worker." + file + ".js";
+  var filename = "../dist/worker." + file + ".js";
   var worker = await Worker.fromFile(path.join(__dirname, filename));
   var data = await worker.postMessage({ id: 1, action: 'open' });
   assert.strictEqual(data.id, 1, "Return the given id in the correct format");
@@ -89,7 +89,7 @@ exports.test = async function test(SQL, assert) {
   data = await worker.postMessage({ action: 'export' });
   var header = "SQLite format 3\0";
   var actual = "";
-  for (let i = 0; i < header.length; i++) actual += String.fromCharCode(data.buffer[i]);
+  for (let i = 0; i < header.length; i += 1) actual += String.fromCharCode(data.buffer[i]);
   assert.equal(actual, header, 'Data returned is an SQLite database file');
 
   // test worker properly opens db after closing
@@ -105,7 +105,7 @@ function obj2array(obj) {
   return buffer;
 }
 
-if (module == require.main) {
+if (module === require.main) {
   process.on('unhandledRejection', r => console.log(r));
 
   require('test').run({

@@ -1,71 +1,78 @@
-exports.test = function(SQL, assert){
-  var db = new SQL.Database();
-  db.exec("CREATE TABLE test (data); INSERT INTO test VALUES (1);");
+"use strict";
 
-  // Open a transaction
-  db.exec("BEGIN TRANSACTION;");
+exports.test = function (SQL, assert) {
+    var db = new SQL.Database();
+    var expectedResult;
+    var res;
+    db.exec("CREATE TABLE test (data); INSERT INTO test VALUES (1);");
 
-  // Insert a row
-  db.exec("INSERT INTO test VALUES (4);")
+    // Open a transaction
+    db.exec("BEGIN TRANSACTION;");
 
-  // Rollback
-  db.exec("ROLLBACK;");
+    // Insert a row
+    db.exec("INSERT INTO test VALUES (4);");
 
-  var res = db.exec("SELECT data FROM test WHERE data = 4;");
-  var expectedResult =  [];
-  assert.deepEqual(res, expectedResult, "transaction rollbacks work");
+    // Rollback
+    db.exec("ROLLBACK;");
 
-  // Open a transaction
-  db.exec("BEGIN TRANSACTION;");
+    res = db.exec("SELECT data FROM test WHERE data = 4;");
+    expectedResult = [];
+    assert.deepEqual(res, expectedResult, "transaction rollbacks work");
 
-  // Insert a row
-  db.exec("INSERT INTO test VALUES (4);")
+    // Open a transaction
+    db.exec("BEGIN TRANSACTION;");
 
-  // Commit
-  db.exec("COMMIT;");
+    // Insert a row
+    db.exec("INSERT INTO test VALUES (4);");
 
-  var res = db.exec("SELECT data FROM test WHERE data = 4;");
-  var expectedResult =  [{
-    columns : ['data'],
-    values : [
-      [4]
-    ]
-  }];
-  assert.deepEqual(res, expectedResult, "transaction commits work");
+    // Commit
+    db.exec("COMMIT;");
 
-  // Open a transaction
-  db.exec("BEGIN TRANSACTION;");
+    res = db.exec("SELECT data FROM test WHERE data = 4;");
+    expectedResult = [{
+        columns: ["data"],
+        values: [
+            [4]
+        ]
+    }];
+    assert.deepEqual(res, expectedResult, "transaction commits work");
 
-  // Insert a row
-  db.exec("INSERT INTO test VALUES (5);")
+    // Open a transaction
+    db.exec("BEGIN TRANSACTION;");
 
-  // Rollback
-  db.exec("ROLLBACK;");
+    // Insert a row
+    db.exec("INSERT INTO test VALUES (5);");
 
-  var res = db.exec("SELECT data FROM test WHERE data IN (4,5);");
-  var expectedResult =  [{
-    columns : ['data'],
-    values : [
-      [4]
-    ]
-  }];
-  assert.deepEqual(res, expectedResult, "transaction rollbacks after commits work");
+    // Rollback
+    db.exec("ROLLBACK;");
 
-  db.close();
+    res = db.exec("SELECT data FROM test WHERE data IN (4,5);");
+    expectedResult = [{
+        columns: ["data"],
+        values: [
+            [4]
+        ]
+    }];
+    assert.deepEqual(
+        res,
+        expectedResult,
+        "transaction rollbacks after commits work"
+    );
+
+    db.close();
 };
 
-if (module == require.main) {
-	const target_file = process.argv[2];
-  const sql_loader = require('./load_sql_lib');
-  sql_loader(target_file).then((sql)=>{
-    require('test').run({
-      'test transactions': function(assert){
-        exports.test(sql, assert);
-      }
+if (module === require.main) {
+    var target_file = process.argv[2];
+    var sql_loader = require("./load_sql_lib");
+    sql_loader(target_file).then(function (sql) {
+        require("test").run({
+            "test transactions": function (assert) {
+                exports.test(sql, assert);
+            }
+        });
+    }).catch(function (e) {
+        console.error(e);
+        assert.fail(e);
     });
-  })
-  .catch((e)=>{
-    console.error(e);
-    assert.fail(e);
-  });
 }
