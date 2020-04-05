@@ -1,11 +1,9 @@
 "use strict";
 
 exports.test = function (SQL, assert) {
-    var db;
+    var db = new SQL.Database();
     var expectedResult;
     var res;
-
-    db = new SQL.Database();
     db.exec("CREATE TABLE test (data); INSERT INTO test VALUES (1);");
 
     // Open a transaction
@@ -65,7 +63,9 @@ exports.test = function (SQL, assert) {
 };
 
 if (module === require.main) {
-    require("./load_sql_lib")(process.argv[2]).then(function (sql) {
+    var target_file = process.argv[2];
+    var sql_loader = require("./load_sql_lib");
+    sql_loader(target_file).then(function (sql) {
         require("test").run({
             "test transactions": function (assert) {
                 exports.test(sql, assert);

@@ -1,11 +1,9 @@
 "use strict";
 
 exports.test = function (sql, assert) {
-    var db;
+    var db = new sql.Database();
     var expectedResult;
     var res;
-
-    db = new sql.Database();
     res = db.exec("CREATE TABLE test (str_data, data);");
 
     db.run("INSERT INTO test VALUES ('Hello World!', 1);");
@@ -105,7 +103,9 @@ exports.test = function (sql, assert) {
 };
 
 if (module === require.main) {
-    require("./load_sql_lib")(process.argv[2]).then(function (sql) {
+    var target_file = process.argv[2];
+    var sql_loader = require("./load_sql_lib");
+    sql_loader(target_file).then(function (sql) {
         require("test").run({
             "test extension functions": function (assert) {
                 exports.test(sql, assert);

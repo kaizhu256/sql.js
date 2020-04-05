@@ -1,25 +1,19 @@
 "use strict";
 
 exports.test = function (SQL, assert) {
-    var db;
-    var filebuffer;
-    var fs;
-    var path;
-    var res;
-
     // Node filesystem module - You know that.
-    fs = require("fs");
+    var fs = require("fs");
 
     // Ditto, path module
-    path = require("path");
+    var path = require("path");
 
-    filebuffer = fs.readFileSync(path.join(__dirname, "test.sqlite"));
+    var filebuffer = fs.readFileSync(path.join(__dirname, "test.sqlite"));
 
     // Works
-    db = new SQL.Database(filebuffer);
+    var db = new SQL.Database(filebuffer);
 
     // [{"columns":["id","content"],"values":[["0","hello"],["1","world"]]}]
-    res = db.exec("SELECT * FROM test WHERE id = 0");
+    var res = db.exec("SELECT * FROM test WHERE id = 0");
     assert.deepEqual(
         res,
         [{ columns: ["id", "content"], values: [[0, "hello"]] }],
@@ -30,7 +24,9 @@ exports.test = function (SQL, assert) {
 };
 
 if (module === require.main) {
-    require("./load_sql_lib")(process.argv[2]).then(function (sql) {
+    var target_file = process.argv[2];
+    var sql_loader = require("./load_sql_lib");
+    sql_loader(target_file).then(function (sql) {
         require("test").run({
             "test node file": function (assert) {
                 exports.test(sql, assert);

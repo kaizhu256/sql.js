@@ -1,24 +1,15 @@
 "use strict";
 
 exports.test = function (SQL, assert) {
-    var count;
-    var db;
-    var dbCopy;
-    var filebuffer;
-    var fs;
-    var newCount;
-    var origCount;
-    var path;
+    var fs = require("fs");
+    var path = require("path");
 
-    fs = require("fs");
-    path = require("path");
-
-    filebuffer = fs.readFileSync(path.join(__dirname, "issue55.db"));
+    var filebuffer = fs.readFileSync(path.join(__dirname, "issue55.db"));
 
     // Works
-    db = new SQL.Database(filebuffer);
+    var db = new SQL.Database(filebuffer);
 
-    origCount = db.prepare(
+    var origCount = db.prepare(
         "SELECT COUNT(*) AS count FROM networklocation"
     ).getAsObject({}).count;
 
@@ -28,20 +19,22 @@ exports.test = function (SQL, assert) {
         [123, 123, 1, 1]
     );
 
-    count = db.prepare(
+    var count = db.prepare(
         "SELECT COUNT(*) AS count FROM networklocation"
     ).getAsObject({}).count;
 
     assert.equal(count, origCount + 1, "The row has been inserted");
-    dbCopy = new SQL.Database(db.export());
-    newCount = dbCopy.prepare(
+    var dbCopy = new SQL.Database(db.export());
+    var newCount = dbCopy.prepare(
         "SELECT COUNT(*) AS count FROM networklocation"
     ).getAsObject({}).count;
     assert.equal(newCount, count, "export and reimport copies all the data");
 };
 
 if (module === require.main) {
-    require("./load_sql_lib")(process.argv[2]).then(function (sql) {
+    var target_file = process.argv[2];
+    var sql_loader = require("./load_sql_lib");
+    sql_loader(target_file).then(function (sql) {
         require("test").run({
             "test issue 55": function (assert) {
                 exports.test(sql, assert);

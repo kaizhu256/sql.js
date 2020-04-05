@@ -1,34 +1,26 @@
 "use strict";
 
 exports.test = function (SQL, assert) {
-    var db;
-    var result;
+    var db = new SQL.Database();
     var result_int;
     var result_int0;
     var result_int1;
-    var result_str;
-    var verbose;
+
+    db.exec(
+        "CREATE TABLE test (data); INSERT INTO test VALUES ('Hello World');"
+    );
 
     // Simple function, appends extra text on a string.
     function test_function(string_arg) {
         return "Function called with: " + string_arg;
     }
 
-    function test_add(int1, int2) {
-        return int1 + int2;
-    }
-
-    db = new SQL.Database();
-    db.exec(
-        "CREATE TABLE test (data); INSERT INTO test VALUES ('Hello World');"
-    );
-
     // Register with SQLite.
     db.create_function("TestFunction", test_function);
 
     // Use in a query, check expected result.
-    result = db.exec("SELECT TestFunction(data) FROM test;");
-    result_str = result[0]["values"][0][0];
+    var result = db.exec("SELECT TestFunction(data) FROM test;");
+    var result_str = result[0]["values"][0][0];
     assert.equal(
         result_str,
         "Function called with: Hello World",
@@ -39,6 +31,10 @@ exports.test = function (SQL, assert) {
     db.exec(
         "CREATE TABLE test2 (int1, int2); INSERT INTO test2 VALUES (456, 789);"
     );
+
+    function test_add(int1, int2) {
+        return int1 + int2;
+    }
 
     db.create_function("TestAdd", test_add);
     result = db.exec("SELECT TestAdd(int1, int2) FROM test2;");
@@ -57,8 +53,7 @@ exports.test = function (SQL, assert) {
 
     function test_zero_byte_index(data) {
     // Data is a Uint8Array
-        var i;
-        for (i = 0; i < data.length; i += 1) {
+        for (var i = 0; i < data.length; i += 1) {
             if (data[i] === 0) {
                 return i;
             }
@@ -79,23 +74,17 @@ exports.test = function (SQL, assert) {
 
     // Test api support of different sqlite types and special values
     db.create_function("identityFunction", function (x) { return x; });
-    verbose = false;
+    var verbose = false;
     function canHandle(testData) {
-        var ok;
-        var res;
-        var simpleEqual;
-        var sql_value;
-        var value_equal;
-
-        res = {};
-        ok = true;
-        sql_value = (
+        var res = {};
+        var ok = true;
+        var sql_value = (
             "sql_value" in testData
                 ? testData.sql_value
                 : "" + testData.value
         );
-        simpleEqual = function (a, b) { return a === b; };
-        value_equal = ("equal" in testData) ? testData.equal : simpleEqual;
+        function simpleEqual(a, b) { return a === b; }
+        var value_equal = ("equal" in testData) ? testData.equal : simpleEqual;
         db.create_function("CheckTestValue", function (x) {
             return value_equal(testData.value, x) ? 12345 : 5678;
         });
@@ -209,7 +198,9 @@ exports.test = function (SQL, assert) {
 };
 
 if (module === require.main) {
-    require("./load_sql_lib")(process.argv[2]).then(function (sql) {
+    var target_file = process.argv[2];
+    var sql_loader = require("./load_sql_lib");
+    sql_loader(target_file).then(function (sql) {
         require("test").run({
             "test functions": function (assert, done) {
                 exports.test(sql, assert, done);

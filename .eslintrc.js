@@ -69,6 +69,7 @@ module.exports = {
         // single-quotes
         quotes: ["error", "double"],
         // reason - allow top-level "use-strict" in commonjs-modules
-        strict: ["error", "safe"]
+        strict: ["error", "safe"],
+        "vars-on-top": "off"
     }
 };

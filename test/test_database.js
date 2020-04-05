@@ -1,19 +1,13 @@
 "use strict";
 
 exports.test = function (SQL, assert, done) {
-    var binaryArray;
-    var count;
-    var db;
-    var expectedResult;
-    var finished;
     var result;
     var sqlstr;
     var testTimeoutId;
-
     assert.notEqual(SQL.Database, undefined, "Should export a Database object");
 
     // Create a database
-    db = new SQL.Database();
+    var db = new SQL.Database();
     assert.equal(
         Object.getPrototypeOf(db),
         SQL.Database.prototype,
@@ -30,7 +24,7 @@ exports.test = function (SQL, assert, done) {
     // Retrieving values
     sqlstr = "SELECT * FROM test;";
     result = db.exec(sqlstr);
-    expectedResult = [{
+    var expectedResult = [{
         columns: ["a", "b", "c", "d", "e"],
         values: [
             [null, 42, 4.2, "fourty two", new Uint8Array([0x42])]
@@ -40,7 +34,7 @@ exports.test = function (SQL, assert, done) {
 
 
     // Export the database to an Uint8Array containing the SQLite database file
-    binaryArray = db.export();
+    var binaryArray = db.export();
     assert.strictEqual(
         String.fromCharCode.apply(null, binaryArray.subarray(0, 6)),
         "SQLite",
@@ -48,15 +42,15 @@ exports.test = function (SQL, assert, done) {
     );
     db.close();
 
-    db = new SQL.Database(binaryArray);
-    result = db.exec("SELECT * FROM test");
+    var db2 = new SQL.Database(binaryArray);
+    result = db2.exec("SELECT * FROM test");
     assert.deepEqual(
         result,
         expectedResult,
         "Exporting and re-importing the database should lead"
         + " to the same database"
     );
-    db.close();
+    db2.close();
 
     db = new SQL.Database();
     assert.deepEqual(db.exec("SELECT * FROM sqlite_master"),
@@ -64,8 +58,8 @@ exports.test = function (SQL, assert, done) {
         "Newly created databases should be empty");
     // Testing db.each
     db.run("CREATE TABLE test (a,b); INSERT INTO test VALUES (1,'a'),(2,'b')");
-    count = 0;
-    finished = false;
+    var count = 0; var
+        finished = false;
     db.each("SELECT * FROM test ORDER BY a", function callback(row) {
         count += 1;
         if (count === 1) {
@@ -107,7 +101,9 @@ exports.test = function (SQL, assert, done) {
 };
 
 if (module === require.main) {
-    require("./load_sql_lib")(process.argv[2]).then(function (sql) {
+    var target_file = process.argv[2];
+    var sql_loader = require("./load_sql_lib");
+    sql_loader(target_file).then(function (sql) {
         require("test").run({
             "test database": function (assert, done) {
                 exports.test(sql, assert, done);

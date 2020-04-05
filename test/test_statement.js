@@ -2,23 +2,18 @@
 
 exports.test = function (sql, assert) {
     // Create a database
-    var db;
-    var res;
-    var result;
-    var sqlstr;
-    var stmt;
+    var db = new sql.Database();
 
-    db = new sql.Database();
     // Execute some sql
-    sqlstr = "CREATE TABLE alphabet (letter, code);";
+    var sqlstr = "CREATE TABLE alphabet (letter, code);";
     db.exec(sqlstr);
 
-    result = db.exec("SELECT name FROM sqlite_master WHERE type='table'");
+    var result = db.exec("SELECT name FROM sqlite_master WHERE type='table'");
     assert.deepEqual(result, [{ columns: ["name"], values: [["alphabet"]] }],
         "Table properly created");
 
     // Prepare a statement to insert values in tha database
-    stmt = db.prepare("INSERT INTO alphabet (letter,code) VALUES (?,?)");
+    var stmt = db.prepare("INSERT INTO alphabet (letter,code) VALUES (?,?)");
     // Execute the statement several times
     stmt.run(["a", 1]);
     stmt.run(["b", 2.2]);
@@ -48,7 +43,7 @@ exports.test = function (sql, assert) {
         ["nbr", "str", "no_value"],
         "Statement.GetColumnNames()"
     );
-    res = stmt.getAsObject();
+    var res = stmt.getAsObject();
     assert.strictEqual(res.nbr, 5, "Read number");
     assert.strictEqual(res.str, "粵語😄", "Read string");
     assert.strictEqual(res.no_value, null, "Read null");
@@ -111,7 +106,9 @@ exports.test = function (sql, assert) {
 };
 
 if (module === require.main) {
-    require("./load_sql_lib")(process.argv[2]).then(function (sql) {
+    var target_file = process.argv[2];
+    var sql_loader = require("./load_sql_lib");
+    sql_loader(target_file).then(function (sql) {
         require("test").run({
             "test statement": function (assert) {
                 exports.test(sql, assert);

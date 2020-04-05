@@ -1,16 +1,11 @@
 "use strict";
 
 exports.test = function (sql, assert) {
-    var db;
-    var expectedResult;
-    var res;
-    var sqlstr;
-
     // Create a database
-    db = new sql.Database();
+    var db = new sql.Database();
 
     // Execute some sql
-    sqlstr = "CREATE TABLE COMPANY("
+    var sqlstr = "CREATE TABLE COMPANY("
 + "                     ID INT PRIMARY KEY     NOT NULL,"
 + "                     NAME           TEXT    NOT NULL,"
 + "                     AGE            INT     NOT NULL,"
@@ -33,8 +28,8 @@ exports.test = function (sql, assert) {
 + "                  SELECT * FROM AUDIT;"
 + "                  INSERT INTO COMPANY VALUES (42,'B',8,'',1600);"
 + "                  SELECT EMP_ID FROM AUDIT ORDER BY EMP_ID";
-    res = db.exec(sqlstr);
-    expectedResult = [
+    var res = db.exec(sqlstr);
+    var expectedResult = [
         {
             columns: ["EMP_ID", "ENTRY_DATE"],
             values: [
@@ -53,7 +48,9 @@ exports.test = function (sql, assert) {
 };
 
 if (module === require.main) {
-    require("./load_sql_lib")(process.argv[2]).then(function (sql) {
+    var target_file = process.argv[2];
+    var sql_loader = require("./load_sql_lib");
+    sql_loader(target_file).then(function (sql) {
         require("test").run({
             "test issue 73": function (assert) {
                 exports.test(sql, assert);
