@@ -5,16 +5,17 @@
 "use strict";
 
 var db;
+var sqlModuleReady;
 
 function onModuleReady(SQL) {
-    function createDb(data) {
-        if (db != null) db.close();
-        db = new SQL.Database(data);
-        return db;
-    }
     var buff;
     var data;
     var result;
+    function createDb(data2) {
+        if (db != null) db.close();
+        db = new SQL.Database(data2);
+        return db;
+    }
     function callback(row) {
         return postMessage({
             id: data["id"],
@@ -85,7 +86,7 @@ function onError(err) {
 
 if (typeof importScripts === "function") {
     db = null;
-    var sqlModuleReady = initSqlJs();
+    sqlModuleReady = initSqlJs();
     self.onmessage = function onmessage(event) {
         return sqlModuleReady
             .then(onModuleReady.bind(event))

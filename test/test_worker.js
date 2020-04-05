@@ -7,9 +7,9 @@
 
 "use strict";
 
-var puppeteer = require("puppeteer");
-var path = require("path");
 var fs = require("fs");
+var path = require("path");
+var puppeteer = require("puppeteer");
 
 function obj2array(obj) {
     var buffer = [];
@@ -56,8 +56,18 @@ Worker.prototype.postMessage = async function (msg) {
 };
 
 exports.test = async function test(SQL, assert) {
-    var target = process.argv[2];
-    var file = target ? "sql-" + target : "sql-wasm";
+    var actual;
+    var data;
+    var file;
+    var filename;
+    var header;
+    var i;
+    var results;
+    var table;
+    var target;
+    var worker;
+    target = process.argv[2];
+    file = target ? "sql-" + target : "sql-wasm";
     if (file.indexOf("wasm") > -1 || file.indexOf("memory-growth") > -1) {
         console.error(
             "Skipping worker test for " + file + ". Not implemented yet"
@@ -66,9 +76,9 @@ exports.test = async function test(SQL, assert) {
     }
     // If we use puppeteer, we need to pass in this new cwd as the root
     // of the file being loaded:
-    var filename = "../dist/worker." + file + ".js";
-    var worker = await Worker.fromFile(path.join(__dirname, filename));
-    var data = await worker.postMessage({ id: 1, action: "open" });
+    filename = "../dist/worker." + file + ".js";
+    worker = await Worker.fromFile(path.join(__dirname, filename));
+    data = await worker.postMessage({ id: 1, action: "open" });
     assert.strictEqual(data.id, 1, "Return the given id in the correct format");
     assert.deepEqual(
         data,
@@ -99,10 +109,10 @@ exports.test = async function test(SQL, assert) {
     assert.strictEqual(data.id, 2, "Correct id");
     // debug error
     assert.strictEqual(data.error, undefined, data.error);
-    var results = data.results;
+    results = data.results;
     assert.ok(Array.isArray(results), "Correct result type");
     assert.strictEqual(results.length, 1, "Expected exactly 1 table");
-    var table = results[0];
+    table = results[0];
     assert.strictEqual(typeof table, "object", "Type of the returned table");
     assert.deepEqual(
         table.columns,
@@ -132,9 +142,9 @@ exports.test = async function test(SQL, assert) {
     );
 
     data = await worker.postMessage({ action: "export" });
-    var header = "SQLite format 3\0";
-    var actual = "";
-    for (var i = 0; i < header.length; i += 1) {
+    header = "SQLite format 3\0";
+    actual = "";
+    for (i = 0; i < header.length; i += 1) {
         actual += String.fromCharCode(data.buffer[i]);
     }
     assert.equal(actual, header, "Data returned is an SQLite database file");

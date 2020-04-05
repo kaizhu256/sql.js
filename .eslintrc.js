@@ -30,6 +30,8 @@ module.exports = {
     rules: {
         // reason - sqlite exposes functions with underscore-naming-convention
         camelcase: "off",
+        // reason - They make it easier to add new elements to arrays
+        // and parameters to functions, and make commit diffs clearer
         "comma-dangle": "off",
         // reason - string-notation needed to prevent closure-minifier
         // from mangling property-name
@@ -67,7 +69,6 @@ module.exports = {
         // single-quotes
         quotes: ["error", "double"],
         // reason - allow top-level "use-strict" in commonjs-modules
-        strict: ["error", "safe"],
-        "vars-on-top": "off"
+        strict: ["error", "safe"]
     }
 };

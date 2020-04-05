@@ -1,30 +1,35 @@
 "use strict";
 
 exports.test = function (SQL, assert) {
-    var db = new SQL.Database();
+    var array;
+    var bigArray;
+    var db;
+    var i;
     var res;
     var stmt;
+
+    db = new SQL.Database();
     // Insert binary data. This is invalid UTF8 on purpose
     db.exec(
         "CREATE TABLE test (data); INSERT INTO test VALUES (x'6162ff'),(x'00')"
     );
 
     stmt = db.prepare("INSERT INTO test VALUES (?)");
-    var bigArray = new Uint8Array(1e6);
+    bigArray = new Uint8Array(1e6);
     bigArray[500] = 0x42;
     stmt.run([bigArray]);
 
     stmt = db.prepare("SELECT * FROM test ORDER BY length(data) DESC");
 
     stmt.step();
-    var array = stmt.get()[0];
+    array = stmt.get()[0];
     assert.equal(
         array.length,
         bigArray.length,
         "BLOB read from the database should be the same size"
         + " as the one that was inserted"
     );
-    for (var i = 0; i < array.length; i += 1) {
+    for (i = 0; i < array.length; i += 1) {
         // Avoid doing 1e6 assert, to not pollute the console
         if (array[i] !== bigArray[i]) {
             assert.fail(
@@ -57,9 +62,7 @@ exports.test = function (SQL, assert) {
 };
 
 if (module === require.main) {
-    var target_file = process.argv[2];
-    var sql_loader = require("./load_sql_lib");
-    sql_loader(target_file).then(function (sql) {
+    require("./load_sql_lib")(process.argv[2]).then(function (sql) {
         require("test").run({
             "test blob": function (assert) {
                 exports.test(sql, assert);

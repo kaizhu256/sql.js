@@ -1,15 +1,17 @@
 "use strict";
 
 exports.test = function (sql, assert) {
+    var db;
+    var stmt;
+    db = new sql.Database([1, 2, 3]);
     assert.throws(function () {
-        var db = new sql.Database([1, 2, 3]);
         db.exec("SELECT * FROM sqlite_master");
     },
     /not a database/,
     "Querying an invalid database should throw an error");
 
     // Create a database
-    var db = new sql.Database();
+    db = new sql.Database();
 
     // Execute some sql
     db.exec("CREATE TABLE test (a INTEGER PRIMARY KEY, b, c, d, e);");
@@ -27,7 +29,7 @@ exports.test = function (sql, assert) {
     /UNIQUE constraint failed/,
     "Inserting two rows with the same primary key should fail");
 
-    var stmt = db.prepare("INSERT INTO test (a) VALUES (?)");
+    stmt = db.prepare("INSERT INTO test (a) VALUES (?)");
 
 
     assert.throws(
@@ -60,9 +62,7 @@ exports.test = function (sql, assert) {
 };
 
 if (module === require.main) {
-    var target_file = process.argv[2];
-    var sql_loader = require("./load_sql_lib");
-    sql_loader(target_file).then(function (sql) {
+    require("./load_sql_lib")(process.argv[2]).then(function (sql) {
         require("test").run({
             "test errors": function (assert) {
                 exports.test(sql, assert);
