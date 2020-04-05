@@ -5,15 +5,30 @@
 "use strict";
 
 var db;
+var sqlModuleReady;
 
 function onModuleReady(SQL) {
-    function createDb(data) {
+    var buff;
+    var data;
+    var result;
+    function createDb(data2) {
         if (db != null) db.close();
-        db = new SQL.Database(data);
+        db = new SQL.Database(data2);
         return db;
     }
-
-    var buff; var data; var result;
+    function callback(row) {
+        return postMessage({
+            id: data["id"],
+            row: row,
+            finished: false
+        });
+    }
+    function done() {
+        return postMessage({
+            id: data["id"],
+            finished: true
+        });
+    }
     data = this["data"];
     switch (data && data["action"]) {
         case "open":
@@ -38,19 +53,6 @@ function onModuleReady(SQL) {
             if (db === null) {
                 createDb();
             }
-            var callback = function callback(row) {
-                return postMessage({
-                    id: data["id"],
-                    row: row,
-                    finished: false
-                });
-            };
-            var done = function done() {
-                return postMessage({
-                    id: data["id"],
-                    finished: true
-                });
-            };
             return db.each(data["sql"], data["params"], callback, done);
         case "export":
             buff = db["export"]();
@@ -84,7 +86,7 @@ function onError(err) {
 
 if (typeof importScripts === "function") {
     db = null;
-    var sqlModuleReady = initSqlJs();
+    sqlModuleReady = initSqlJs();
     self.onmessage = function onmessage(event) {
         return sqlModuleReady
             .then(onModuleReady.bind(event))

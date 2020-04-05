@@ -1,14 +1,17 @@
 "use strict";
 
 module.exports = function (sqlLibraryType) {
+    var begin;
+    var initSqlJs;
+    var sqlJsLib;
     // Use sql-wasm.js by default
-    var sqlJsLib = (
+    sqlJsLib = (
         sqlLibraryType
             ? "../dist/sql-" + sqlLibraryType + ".js"
             : "../dist/sql-wasm.js"
     );
-    var begin = new Date();
-    var initSqlJs = require(sqlJsLib);
+    begin = new Date();
+    initSqlJs = require(sqlJsLib);
     return initSqlJs().then(function (sql) {
         console.log(
             "Loaded and inited "

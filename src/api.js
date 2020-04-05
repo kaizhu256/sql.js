@@ -762,15 +762,20 @@ Module["onRuntimeInitialized"] = function onRuntimeInitialized() {
     */
     Database.prototype["exec"] = function exec(sql, params) {
         var curresult;
+        var nextSqlPtr;
+        var pStmt;
+        var pzTail;
+        var results;
+        var stack;
         var stmt;
         if (!this.db) {
             throw "Database closed";
         }
-        var stack = stackSave();
+        stack = stackSave();
         try {
-            var nextSqlPtr = allocateUTF8OnStack(sql);
-            var pzTail = stackAlloc(4);
-            var results = [];
+            nextSqlPtr = allocateUTF8OnStack(sql);
+            pzTail = stackAlloc(4);
+            results = [];
             while (getValue(nextSqlPtr, "i8") !== NULL) {
                 setValue(apiTemp, 0, "i32");
                 setValue(pzTail, 0, "i32");
@@ -782,7 +787,7 @@ Module["onRuntimeInitialized"] = function onRuntimeInitialized() {
                     pzTail
                 ));
                 // pointer to a statement, or null
-                var pStmt = getValue(apiTemp, "i32");
+                pStmt = getValue(apiTemp, "i32");
                 nextSqlPtr = getValue(pzTail, "i32");
                 // Empty statement
                 if (pStmt !== NULL) {
@@ -963,21 +968,27 @@ Module["onRuntimeInitialized"] = function onRuntimeInitialized() {
     ) {
         var func_ptr;
         function wrapped_func(cx, argc, argv) {
+            var arg;
+            var args;
+            var blobptr;
+            var i;
+            var j;
             var result;
+            var value_ptr;
+            var value_type;
             function extract_blob(ptr) {
                 var size = sqlite3_value_bytes(ptr);
                 var blob_ptr = sqlite3_value_blob(ptr);
                 var blob_arg = new Uint8Array(size);
-                for (var j = 0; j < size; j += 1) {
+                for (j = 0; j < size; j += 1) {
                     blob_arg[j] = HEAP8[blob_ptr + j];
                 }
                 return blob_arg;
             }
-            var args = [];
-            for (var i = 0; i < argc; i += 1) {
-                var value_ptr = getValue(argv + (4 * i), "i32");
-                var value_type = sqlite3_value_type(value_ptr);
-                var arg;
+            args = [];
+            for (i = 0; i < argc; i += 1) {
+                value_ptr = getValue(argv + (4 * i), "i32");
+                value_type = sqlite3_value_type(value_ptr);
                 if (
                     value_type === SQLITE_INTEGER
                     || value_type === SQLITE_FLOAT
@@ -1010,7 +1021,7 @@ Module["onRuntimeInitialized"] = function onRuntimeInitialized() {
                     if (result === null) {
                         sqlite3_result_null(cx);
                     } else if (result.length != null) {
-                        var blobptr = allocate(result, "i8", ALLOC_NORMAL);
+                        blobptr = allocate(result, "i8", ALLOC_NORMAL);
                         sqlite3_result_blob(cx, blobptr, result.length, -1);
                         _free(blobptr);
                     } else {
