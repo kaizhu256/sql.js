@@ -24,7 +24,7 @@ module.exports = {
         "!/.eslintrc.js"
     ],
     parserOptions: {
-        ecmaVersion: 8,
+        ecmaVersion: 5,
         sourceType: "script"
     },
     rules: {
