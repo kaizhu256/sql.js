@@ -40,6 +40,11 @@ EMFLAGS = \
 	-s NODEJS_CATCH_REJECTION=0
 
 EMFLAGS_ASM = \
+	-s WASM=0
+	-s LEGACY_VM_SUPPORT=1 \
+	-s ALLOW_MEMORY_GROWTH=1
+
+EMFLAGS_ASM_MEMORY_GROWTH = \
 	-s WASM=0 \
 	-s LEGACY_VM_SUPPORT=1 \
 	-s ALLOW_MEMORY_GROWTH=1
@@ -88,7 +93,7 @@ dist/sql-wasm-debug.js: $(BITCODE_FILES) $(OUTPUT_WRAPPER_FILES) $(SOURCE_API_FI
 	rm out/tmp-raw.js
 
 .PHONY: optimized
-optimized: dist/sql-asm.js dist/sql-wasm.js
+optimized: dist/sql-asm.js dist/sql-wasm.js dist/sql-asm-memory-growth.js
 
 dist/sql-asm.js: $(BITCODE_FILES) $(OUTPUT_WRAPPER_FILES) $(SOURCE_API_FILES) $(EXPORTED_METHODS_JSON_FILES)
 	$(EMCC) $(EMFLAGS) $(EMFLAGS_OPTIMIZED) $(EMFLAGS_ASM) $(BITCODE_FILES) $(EMFLAGS_PRE_JS_FILES) -o $@
@@ -100,6 +105,17 @@ dist/sql-wasm.js: $(BITCODE_FILES) $(OUTPUT_WRAPPER_FILES) $(SOURCE_API_FILES) $
 	$(EMCC) $(EMFLAGS) $(EMFLAGS_OPTIMIZED) $(EMFLAGS_WASM) $(BITCODE_FILES) $(EMFLAGS_PRE_JS_FILES) -o $@
 	mv $@ out/tmp-raw.js
 	cat src/shell-pre.js out/tmp-raw.js src/shell-post.js > $@
+	rm out/tmp-raw.js
+
+dist/sql-asm-memory-growth.js: $(BITCODE_FILES) $(OUTPUT_WRAPPER_FILES) $(SOURCE_API_FILES) $(EXPORTED_METHODS_JSON_FILES)
+	$(EMCC) $(EMFLAGS) $(EMFLAGS_OPTIMIZED) $(EMFLAGS_ASM_MEMORY_GROWTH) $(BITCODE_FILES) $(EMFLAGS_PRE_JS_FILES) -o $@
+	mv $@ out/tmp-raw.js
+	echo 'console.error(
+    "DEPRECATION WARNING. sql-asm-memory-growth.js is deprecated and will be\n"
+    + "removed in future releases. Use sql-asm.js instead, which now includes\n"
+    + "memory-growth support."
+);' > $@
+	cat src/shell-pre.js out/tmp-raw.js src/shell-post.js >> $@
 	rm out/tmp-raw.js
 
 # Web worker API
